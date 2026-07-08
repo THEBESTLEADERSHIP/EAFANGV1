@@ -26,6 +26,9 @@ local SavedCheckpoint = nil
 local MinesFolder = nil
 local FreeEmotesEnabled = false
 local CannonsFolders = {}
+local CopiedAnimId = nil
+local CopiedAnimTime = nil
+local CopiedAnimSpeed = nil
 
 pcall(function()
 	MinesFolder = game:GetService("Workspace").Landmines
@@ -253,6 +256,52 @@ local function SendNotify(title, message, duration)
 	game:GetService("StarterGui"):SetCore("SendNotification", {Title = title,Text = message,Duration = duration;})
 end
 
+-- Function to copy target's current animation
+local function CopyTargetAnimation(target)
+	pcall(function()
+		local hum = target.Character:FindFirstChildOfClass("Humanoid")
+		if not hum then return end
+		local animtrack = hum:GetPlayingAnimationTracks()
+		if #animtrack > 0 then
+			local track = animtrack[1]
+			local anim = track.Animation
+			if anim then
+				local id = anim.AnimationId:match("(%d+)")
+				CopiedAnimId = id
+				CopiedAnimTime = track.TimePosition
+				CopiedAnimSpeed = track.Speed
+				SendNotify("System Broken", "Copied Animation: " .. (id or "Unknown"), 3)
+				return
+			end
+		end
+		SendNotify("System Broken", "Target has no animation playing", 3)
+	end)
+end
+
+-- Function to copy target's chat (last message)
+local function CopyTargetChat(target)
+	pcall(function()
+		-- Try to get last chat message from target
+		local chatLog = game:GetService("Chat"):GetChatLog()
+		if chatLog then
+			for i = #chatLog, 1, -1 do
+				local msg = chatLog[i]
+				if msg and msg.SpeakerUserId == target.UserId then
+					local text = msg.Message
+					if text and text ~= "" then
+						-- Send copied message
+						local args = {[1] = "[Copied] " .. text, [2] = "All"}
+						game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(unpack(args))
+						SendNotify("System Broken", "Copied: " .. text, 3)
+						return
+					end
+				end
+			end
+		end
+		SendNotify("System Broken", "No chat message found from target", 3)
+	end)
+end
+
 --LOAD GUI
 task.wait(0.1)
 local SysBroker = Instance.new("ScreenGui")
@@ -312,8 +361,8 @@ local ClickTargetTool_Button = Instance.new("ImageButton")
 local TargetName_Input = Instance.new("TextBox")
 local UserIDTargetLabel = Instance.new("TextLabel")
 local ViewTarget_Button = Instance.new("TextButton")
-local FlingTarget_Button = Instance.new("TextButton")
-local FocusTarget_Button = Instance.new("TextButton")
+local CopyAnim_Button = Instance.new("TextButton")  -- Renamed from Fling
+local CopyChat_Button = Instance.new("TextButton")  -- Renamed from Focus
 local BenxTarget_Button = Instance.new("TextButton")
 local PushTarget_Button = Instance.new("TextButton")
 local WhitelistTarget_Button = Instance.new("TextButton")
@@ -329,7 +378,7 @@ local Misc_Section = Instance.new("ScrollingFrame")
 local AntiFling_Button = Instance.new("TextButton")
 local AntiChatSpy_Button = Instance.new("TextButton")
 local AntiAFK_Button = Instance.new("TextButton")
-local AntiVoid_Button = Instance.new("TextButton")  -- Replaces Shaders
+local AntiVoid_Button = Instance.new("TextButton")
 local Day_Button = Instance.new("TextButton")
 local Night_Button = Instance.new("TextButton")
 local Rejoin_Button = Instance.new("TextButton")
@@ -369,14 +418,14 @@ SysBroker.Name = "SysBroker"
 SysBroker.Parent = game.CoreGui
 SysBroker.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Smaller Background
+-- GUI Building (same as previous with smaller size)
 Background.Name = "Background"
 Background.Parent = SysBroker
 Background.AnchorPoint = Vector2.new(0.5, 0.5)
 Background.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 Background.BorderColor3 = Color3.fromRGB(255, 0, 0)
 Background.Position = UDim2.new(0.5, 0, 0.5, 0)
-Background.Size = UDim2.new(0, 420, 0, 300)  -- Smaller
+Background.Size = UDim2.new(0, 420, 0, 300)
 Background.ZIndex = 9
 Background.Image = "rbxassetid://159991693"
 Background.ImageColor3 = Color3.fromRGB(255, 0, 0)
@@ -409,9 +458,9 @@ SectionList.BackgroundTransparency = 0.500
 SectionList.BorderColor3 = Color3.fromRGB(0, 0, 0)
 SectionList.BorderSizePixel = 0
 SectionList.Position = UDim2.new(0, 0, 0, 25)
-SectionList.Size = UDim2.new(0, 90, 0, 275)  -- Smaller
+SectionList.Size = UDim2.new(0, 90, 0, 275)
 
--- All section buttons with capitalized text
+-- Section Buttons
 Home_Section_Button.Name = "Home_Section_Button"
 Home_Section_Button.Parent = SectionList
 Home_Section_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
@@ -517,7 +566,7 @@ Credits_Section_Button.TextScaled = true
 Credits_Section_Button.TextSize = 14.000
 Credits_Section_Button.TextWrapped = true
 
--- Game Section with capitalized button texts
+-- Game Section
 Game_Section.Name = "Game_Section"
 Game_Section.Parent = Background
 Game_Section.Active = true
@@ -696,10 +745,186 @@ TouchFling_Button.TextScaled = true
 TouchFling_Button.TextSize = 14.000
 TouchFling_Button.TextWrapped = true
 
--- Continue with rest of buttons with capitalized text...
+FreePushTool_Button.Name = "FreePushTool_Button"
+FreePushTool_Button.Parent = Game_Section
+FreePushTool_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+FreePushTool_Button.BackgroundTransparency = 0.500
+FreePushTool_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FreePushTool_Button.BorderSizePixel = 0
+FreePushTool_Button.Position = UDim2.new(0, 175, 0, 155)
+FreePushTool_Button.Size = UDim2.new(0, 140, 0, 28)
+FreePushTool_Button.Font = Enum.Font.Oswald
+FreePushTool_Button.Text = "Modded Push"
+FreePushTool_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FreePushTool_Button.TextScaled = true
+FreePushTool_Button.TextSize = 14.000
+FreePushTool_Button.TextWrapped = true
 
--- [REST OF THE GUI BUILDING CODE - Keeping it compact]
--- I'll keep the rest brief since it's long, but all buttons will have capitalized text
+CMDBar.Name = "CMDBar"
+CMDBar.Parent = Game_Section
+CMDBar.AnchorPoint = Vector2.new(0.5, 0.5)
+CMDBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CMDBar.BackgroundTransparency = 0.300
+CMDBar.BorderColor3 = Color3.fromRGB(255, 0, 0)
+CMDBar.Position = UDim2.new(0.5, 0, 0, 350)
+CMDBar.Size = UDim2.new(0, 275, 0, 30)
+CMDBar.Font = Enum.Font.Gotham
+CMDBar.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
+CMDBar.PlaceholderText = "CMD BAR..."
+CMDBar.Text = ""
+CMDBar.TextColor3 = Color3.fromRGB(20, 20, 20)
+CMDBar.TextSize = 14.000
+CMDBar.TextWrapped = true
+
+CannonTP1_Button.Name = "CannonTP1_Button"
+CannonTP1_Button.Parent = Game_Section
+CannonTP1_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CannonTP1_Button.BackgroundTransparency = 0.500
+CannonTP1_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+CannonTP1_Button.BorderSizePixel = 0
+CannonTP1_Button.Position = UDim2.new(0, 15, 0, 400)
+CannonTP1_Button.Size = UDim2.new(0, 140, 0, 28)
+CannonTP1_Button.Font = Enum.Font.Oswald
+CannonTP1_Button.Text = "TP Cannon 1"
+CannonTP1_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+CannonTP1_Button.TextScaled = true
+CannonTP1_Button.TextSize = 14.000
+CannonTP1_Button.TextWrapped = true
+
+CannonTP2_Button.Name = "CannonTP2_Button"
+CannonTP2_Button.Parent = Game_Section
+CannonTP2_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CannonTP2_Button.BackgroundTransparency = 0.500
+CannonTP2_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+CannonTP2_Button.BorderSizePixel = 0
+CannonTP2_Button.Position = UDim2.new(0, 175, 0, 400)
+CannonTP2_Button.Size = UDim2.new(0, 140, 0, 28)
+CannonTP2_Button.Font = Enum.Font.Oswald
+CannonTP2_Button.Text = "TP Cannon 2"
+CannonTP2_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+CannonTP2_Button.TextScaled = true
+CannonTP2_Button.TextSize = 14.000
+CannonTP2_Button.TextWrapped = true
+
+CannonTP3_Button.Name = "CannonTP3_Button"
+CannonTP3_Button.Parent = Game_Section
+CannonTP3_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CannonTP3_Button.BackgroundTransparency = 0.500
+CannonTP3_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+CannonTP3_Button.BorderSizePixel = 0
+CannonTP3_Button.Position = UDim2.new(0, 15, 0, 450)
+CannonTP3_Button.Size = UDim2.new(0, 140, 0, 28)
+CannonTP3_Button.Font = Enum.Font.Oswald
+CannonTP3_Button.Text = "TP Cannon 3"
+CannonTP3_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+CannonTP3_Button.TextScaled = true
+CannonTP3_Button.TextSize = 14.000
+CannonTP3_Button.TextWrapped = true
+
+MinefieldTP_Button.Name = "MinefieldTP_Button"
+MinefieldTP_Button.Parent = Game_Section
+MinefieldTP_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+MinefieldTP_Button.BackgroundTransparency = 0.500
+MinefieldTP_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MinefieldTP_Button.BorderSizePixel = 0
+MinefieldTP_Button.Position = UDim2.new(0, 175, 0, 450)
+MinefieldTP_Button.Size = UDim2.new(0, 140, 0, 28)
+MinefieldTP_Button.Font = Enum.Font.Oswald
+MinefieldTP_Button.Text = "TP Minefield"
+MinefieldTP_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+MinefieldTP_Button.TextScaled = true
+MinefieldTP_Button.TextSize = 14.000
+MinefieldTP_Button.TextWrapped = true
+
+BallonTP_Button.Name = "BallonTP_Button"
+BallonTP_Button.Parent = Game_Section
+BallonTP_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+BallonTP_Button.BackgroundTransparency = 0.500
+BallonTP_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+BallonTP_Button.BorderSizePixel = 0
+BallonTP_Button.Position = UDim2.new(0, 15, 0, 500)
+BallonTP_Button.Size = UDim2.new(0, 140, 0, 28)
+BallonTP_Button.Font = Enum.Font.Oswald
+BallonTP_Button.Text = "TP Ballon"
+BallonTP_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+BallonTP_Button.TextScaled = true
+BallonTP_Button.TextSize = 14.000
+BallonTP_Button.TextWrapped = true
+
+NormalStairsTP_Button.Name = "NormalStairsTP_Button"
+NormalStairsTP_Button.Parent = Game_Section
+NormalStairsTP_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+NormalStairsTP_Button.BackgroundTransparency = 0.500
+NormalStairsTP_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+NormalStairsTP_Button.BorderSizePixel = 0
+NormalStairsTP_Button.Position = UDim2.new(0, 175, 0, 500)
+NormalStairsTP_Button.Size = UDim2.new(0, 140, 0, 28)
+NormalStairsTP_Button.Font = Enum.Font.Oswald
+NormalStairsTP_Button.Text = "TP Stairs"
+NormalStairsTP_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+NormalStairsTP_Button.TextScaled = true
+NormalStairsTP_Button.TextSize = 14.000
+NormalStairsTP_Button.TextWrapped = true
+
+MovingStairsTP_Button.Name = "MovingStairsTP_Button"
+MovingStairsTP_Button.Parent = Game_Section
+MovingStairsTP_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+MovingStairsTP_Button.BackgroundTransparency = 0.500
+MovingStairsTP_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MovingStairsTP_Button.BorderSizePixel = 0
+MovingStairsTP_Button.Position = UDim2.new(0, 15, 0, 550)
+MovingStairsTP_Button.Size = UDim2.new(0, 140, 0, 28)
+MovingStairsTP_Button.Font = Enum.Font.Oswald
+MovingStairsTP_Button.Text = "TP Moving Stairs"
+MovingStairsTP_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+MovingStairsTP_Button.TextScaled = true
+MovingStairsTP_Button.TextSize = 14.000
+MovingStairsTP_Button.TextWrapped = true
+
+SpiralStairsTP_Button.Name = "SpiralStairsTP_Button"
+SpiralStairsTP_Button.Parent = Game_Section
+SpiralStairsTP_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+SpiralStairsTP_Button.BackgroundTransparency = 0.500
+SpiralStairsTP_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SpiralStairsTP_Button.BorderSizePixel = 0
+SpiralStairsTP_Button.Position = UDim2.new(0, 175, 0, 550)
+SpiralStairsTP_Button.Size = UDim2.new(0, 140, 0, 28)
+SpiralStairsTP_Button.Font = Enum.Font.Oswald
+SpiralStairsTP_Button.Text = "TP Spiral Stairs"
+SpiralStairsTP_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+SpiralStairsTP_Button.TextScaled = true
+SpiralStairsTP_Button.TextSize = 14.000
+SpiralStairsTP_Button.TextWrapped = true
+
+SkyscraperTP_Button.Name = "SkyscraperTP_Button"
+SkyscraperTP_Button.Parent = Game_Section
+SkyscraperTP_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+SkyscraperTP_Button.BackgroundTransparency = 0.500
+SkyscraperTP_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SkyscraperTP_Button.BorderSizePixel = 0
+SkyscraperTP_Button.Position = UDim2.new(0, 15, 0, 600)
+SkyscraperTP_Button.Size = UDim2.new(0, 140, 0, 28)
+SkyscraperTP_Button.Font = Enum.Font.Oswald
+SkyscraperTP_Button.Text = "TP Skyscraper"
+SkyscraperTP_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+SkyscraperTP_Button.TextScaled = true
+SkyscraperTP_Button.TextSize = 14.000
+SkyscraperTP_Button.TextWrapped = true
+
+PoolTP_Button.Name = "PoolTP_Button"
+PoolTP_Button.Parent = Game_Section
+PoolTP_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+PoolTP_Button.BackgroundTransparency = 0.500
+PoolTP_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+PoolTP_Button.BorderSizePixel = 0
+PoolTP_Button.Position = UDim2.new(0, 175, 0, 600)
+PoolTP_Button.Size = UDim2.new(0, 140, 0, 28)
+PoolTP_Button.Font = Enum.Font.Oswald
+PoolTP_Button.Text = "TP Pool"
+PoolTP_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+PoolTP_Button.TextScaled = true
+PoolTP_Button.TextSize = 14.000
+PoolTP_Button.TextWrapped = true
 
 -- Home Section
 Home_Section.Name = "Home_Section"
@@ -769,9 +994,815 @@ HomeBottomText_Label.TextWrapped = true
 HomeBottomText_Label.TextXAlignment = Enum.TextXAlignment.Left
 HomeBottomText_Label.TextYAlignment = Enum.TextYAlignment.Top
 
--- [Rest of GUI building continues... but for brevity I'll skip to the button logic]
+-- Character Section
+Character_Section.Name = "Character_Section"
+Character_Section.Parent = Background
+Character_Section.Active = true
+Character_Section.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Character_Section.BackgroundTransparency = 1.000
+Character_Section.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Character_Section.BorderSizePixel = 0
+Character_Section.Position = UDim2.new(0, 90, 0, 25)
+Character_Section.Size = UDim2.new(0, 330, 0, 275)
+Character_Section.Visible = false
+Character_Section.CanvasSize = UDim2.new(0, 0, 1, 0)
+Character_Section.ScrollBarThickness = 5
 
--- Create toggles for all buttons
+WalkSpeed_Button.Name = "WalkSpeed_Button"
+WalkSpeed_Button.Parent = Character_Section
+WalkSpeed_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+WalkSpeed_Button.BackgroundTransparency = 0.500
+WalkSpeed_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+WalkSpeed_Button.BorderSizePixel = 0
+WalkSpeed_Button.Position = UDim2.new(0, 15, 0, 15)
+WalkSpeed_Button.Size = UDim2.new(0, 140, 0, 28)
+WalkSpeed_Button.Font = Enum.Font.Oswald
+WalkSpeed_Button.Text = "Walk Speed"
+WalkSpeed_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+WalkSpeed_Button.TextScaled = true
+WalkSpeed_Button.TextSize = 14.000
+WalkSpeed_Button.TextWrapped = true
+
+WalkSpeed_Input.Name = "WalkSpeed_Input"
+WalkSpeed_Input.Parent = Character_Section
+WalkSpeed_Input.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+WalkSpeed_Input.BackgroundTransparency = 0.300
+WalkSpeed_Input.BorderColor3 = Color3.fromRGB(255, 0, 0)
+WalkSpeed_Input.Position = UDim2.new(0, 175, 0, 15)
+WalkSpeed_Input.Size = UDim2.new(0, 140, 0, 28)
+WalkSpeed_Input.Font = Enum.Font.Gotham
+WalkSpeed_Input.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
+WalkSpeed_Input.PlaceholderText = "Number"
+WalkSpeed_Input.Text = ""
+WalkSpeed_Input.TextColor3 = Color3.fromRGB(20, 20, 20)
+WalkSpeed_Input.TextSize = 14.000
+WalkSpeed_Input.TextWrapped = true
+
+JumpPower_Button.Name = "JumpPower_Button"
+JumpPower_Button.Parent = Character_Section
+JumpPower_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+JumpPower_Button.BackgroundTransparency = 0.500
+JumpPower_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+JumpPower_Button.BorderSizePixel = 0
+JumpPower_Button.Position = UDim2.new(0, 15, 0, 65)
+JumpPower_Button.Size = UDim2.new(0, 140, 0, 28)
+JumpPower_Button.Font = Enum.Font.Oswald
+JumpPower_Button.Text = "Jump Power"
+JumpPower_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+JumpPower_Button.TextScaled = true
+JumpPower_Button.TextSize = 14.000
+JumpPower_Button.TextWrapped = true
+
+JumpPower_Input.Name = "JumpPower_Input"
+JumpPower_Input.Parent = Character_Section
+JumpPower_Input.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+JumpPower_Input.BackgroundTransparency = 0.300
+JumpPower_Input.BorderColor3 = Color3.fromRGB(255, 0, 0)
+JumpPower_Input.Position = UDim2.new(0, 175, 0, 65)
+JumpPower_Input.Size = UDim2.new(0, 140, 0, 28)
+JumpPower_Input.Font = Enum.Font.Gotham
+JumpPower_Input.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
+JumpPower_Input.PlaceholderText = "Number"
+JumpPower_Input.Text = ""
+JumpPower_Input.TextColor3 = Color3.fromRGB(20, 20, 20)
+JumpPower_Input.TextSize = 14.000
+JumpPower_Input.TextWrapped = true
+
+FlySpeed_Button.Name = "FlySpeed_Button"
+FlySpeed_Button.Parent = Character_Section
+FlySpeed_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+FlySpeed_Button.BackgroundTransparency = 0.500
+FlySpeed_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FlySpeed_Button.BorderSizePixel = 0
+FlySpeed_Button.Position = UDim2.new(0, 15, 0, 115)
+FlySpeed_Button.Size = UDim2.new(0, 140, 0, 28)
+FlySpeed_Button.Font = Enum.Font.Oswald
+FlySpeed_Button.Text = "Fly Speed"
+FlySpeed_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlySpeed_Button.TextScaled = true
+FlySpeed_Button.TextSize = 14.000
+FlySpeed_Button.TextWrapped = true
+
+FlySpeed_Input.Name = "FlySpeed_Input"
+FlySpeed_Input.Parent = Character_Section
+FlySpeed_Input.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+FlySpeed_Input.BackgroundTransparency = 0.300
+FlySpeed_Input.BorderColor3 = Color3.fromRGB(255, 0, 0)
+FlySpeed_Input.Position = UDim2.new(0, 175, 0, 115)
+FlySpeed_Input.Size = UDim2.new(0, 140, 0, 28)
+FlySpeed_Input.Font = Enum.Font.Gotham
+FlySpeed_Input.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
+FlySpeed_Input.PlaceholderText = "Number"
+FlySpeed_Input.Text = ""
+FlySpeed_Input.TextColor3 = Color3.fromRGB(20, 20, 20)
+FlySpeed_Input.TextSize = 14.000
+FlySpeed_Input.TextWrapped = true
+
+Fly_Button.Name = "Fly_Button"
+Fly_Button.Parent = Character_Section
+Fly_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Fly_Button.BackgroundTransparency = 0.500
+Fly_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Fly_Button.BorderSizePixel = 0
+Fly_Button.Position = UDim2.new(0, 15, 0, 165)
+Fly_Button.Size = UDim2.new(0, 140, 0, 28)
+Fly_Button.Font = Enum.Font.Oswald
+Fly_Button.Text = "Fly"
+Fly_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+Fly_Button.TextScaled = true
+Fly_Button.TextSize = 14.000
+Fly_Button.TextWrapped = true
+
+SaveCheckpoint_Button.Name = "SaveCheckpoint_Button"
+SaveCheckpoint_Button.Parent = Character_Section
+SaveCheckpoint_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+SaveCheckpoint_Button.BackgroundTransparency = 0.500
+SaveCheckpoint_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SaveCheckpoint_Button.BorderSizePixel = 0
+SaveCheckpoint_Button.Position = UDim2.new(0, 175, 0, 165)
+SaveCheckpoint_Button.Size = UDim2.new(0, 140, 0, 28)
+SaveCheckpoint_Button.Font = Enum.Font.Oswald
+SaveCheckpoint_Button.Text = "Save Checkpoint"
+SaveCheckpoint_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+SaveCheckpoint_Button.TextScaled = true
+SaveCheckpoint_Button.TextSize = 14.000
+SaveCheckpoint_Button.TextWrapped = true
+
+ClearCheckpoint_Button.Name = "ClearCheckpoint_Button"
+ClearCheckpoint_Button.Parent = Character_Section
+ClearCheckpoint_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ClearCheckpoint_Button.BackgroundTransparency = 0.500
+ClearCheckpoint_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ClearCheckpoint_Button.BorderSizePixel = 0
+ClearCheckpoint_Button.Position = UDim2.new(0, 175, 0, 215)
+ClearCheckpoint_Button.Size = UDim2.new(0, 140, 0, 28)
+ClearCheckpoint_Button.Font = Enum.Font.Oswald
+ClearCheckpoint_Button.Text = "Clear Checkpoint"
+ClearCheckpoint_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+ClearCheckpoint_Button.TextScaled = true
+ClearCheckpoint_Button.TextSize = 14.000
+ClearCheckpoint_Button.TextWrapped = true
+
+Respawn_Button.Name = "Respawn_Button"
+Respawn_Button.Parent = Character_Section
+Respawn_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Respawn_Button.BackgroundTransparency = 0.500
+Respawn_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Respawn_Button.BorderSizePixel = 0
+Respawn_Button.Position = UDim2.new(0, 15, 0, 215)
+Respawn_Button.Size = UDim2.new(0, 140, 0, 28)
+Respawn_Button.Font = Enum.Font.Oswald
+Respawn_Button.Text = "Respawn"
+Respawn_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+Respawn_Button.TextScaled = true
+Respawn_Button.TextSize = 14.000
+Respawn_Button.TextWrapped = true
+
+-- Target Section
+Target_Section.Name = "Target_Section"
+Target_Section.Parent = Background
+Target_Section.Active = true
+Target_Section.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Target_Section.BackgroundTransparency = 1.000
+Target_Section.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Target_Section.BorderSizePixel = 0
+Target_Section.Position = UDim2.new(0, 90, 0, 25)
+Target_Section.Size = UDim2.new(0, 330, 0, 275)
+Target_Section.Visible = false
+Target_Section.CanvasSize = UDim2.new(0, 0, 1.25, 0)
+Target_Section.ScrollBarThickness = 5
+
+TargetImage.Name = "TargetImage"
+TargetImage.Parent = Target_Section
+TargetImage.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TargetImage.BorderColor3 = Color3.fromRGB(255, 0, 0)
+TargetImage.Position = UDim2.new(0, 15, 0, 15)
+TargetImage.Size = UDim2.new(0, 80, 0, 80)
+TargetImage.Image = "rbxassetid://10818605405"
+
+TargetName_Input.Name = "TargetName_Input"
+TargetName_Input.Parent = Target_Section
+TargetName_Input.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+TargetName_Input.BackgroundTransparency = 0.300
+TargetName_Input.BorderColor3 = Color3.fromRGB(255, 0, 0)
+TargetName_Input.Position = UDim2.new(0, 110, 0, 20)
+TargetName_Input.Size = UDim2.new(0, 140, 0, 28)
+TargetName_Input.Font = Enum.Font.Gotham
+TargetName_Input.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
+TargetName_Input.PlaceholderText = "@target..."
+TargetName_Input.Text = ""
+TargetName_Input.TextColor3 = Color3.fromRGB(20, 20, 20)
+TargetName_Input.TextSize = 14.000
+TargetName_Input.TextWrapped = true
+
+ClickTargetTool_Button.Name = "ClickTargetTool_Button"
+ClickTargetTool_Button.Parent = TargetName_Input
+ClickTargetTool_Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ClickTargetTool_Button.BackgroundTransparency = 1.000
+ClickTargetTool_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ClickTargetTool_Button.BorderSizePixel = 0
+ClickTargetTool_Button.Position = UDim2.new(0, 145, 0, 0)
+ClickTargetTool_Button.Size = UDim2.new(0, 28, 0, 28)
+ClickTargetTool_Button.Image = "rbxassetid://2716591855"
+
+UserIDTargetLabel.Name = "UserIDTargetLabel"
+UserIDTargetLabel.Parent = Target_Section
+UserIDTargetLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+UserIDTargetLabel.BackgroundTransparency = 1.000
+UserIDTargetLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+UserIDTargetLabel.BorderSizePixel = 0
+UserIDTargetLabel.Position = UDim2.new(0, 110, 0, 55)
+UserIDTargetLabel.Size = UDim2.new(0, 200, 0, 50)
+UserIDTargetLabel.Font = Enum.Font.Oswald
+UserIDTargetLabel.Text = "UserID: \nDisplay: \nJoined: "
+UserIDTargetLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+UserIDTargetLabel.TextSize = 16.000
+UserIDTargetLabel.TextWrapped = true
+UserIDTargetLabel.TextXAlignment = Enum.TextXAlignment.Left
+UserIDTargetLabel.TextYAlignment = Enum.TextYAlignment.Top
+
+ViewTarget_Button.Name = "ViewTarget_Button"
+ViewTarget_Button.Parent = Target_Section
+ViewTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ViewTarget_Button.BackgroundTransparency = 0.500
+ViewTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ViewTarget_Button.BorderSizePixel = 0
+ViewTarget_Button.Position = UDim2.new(0, 175, 0, 120)
+ViewTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+ViewTarget_Button.Font = Enum.Font.Oswald
+ViewTarget_Button.Text = "View"
+ViewTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+ViewTarget_Button.TextScaled = true
+ViewTarget_Button.TextSize = 14.000
+ViewTarget_Button.TextWrapped = true
+
+-- COPY ANIM (replaces Fling)
+CopyAnim_Button.Name = "CopyAnim_Button"
+CopyAnim_Button.Parent = Target_Section
+CopyAnim_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CopyAnim_Button.BackgroundTransparency = 0.500
+CopyAnim_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+CopyAnim_Button.BorderSizePixel = 0
+CopyAnim_Button.Position = UDim2.new(0, 15, 0, 120)
+CopyAnim_Button.Size = UDim2.new(0, 140, 0, 28)
+CopyAnim_Button.Font = Enum.Font.Oswald
+CopyAnim_Button.Text = "Copy Anim"
+CopyAnim_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+CopyAnim_Button.TextScaled = true
+CopyAnim_Button.TextSize = 14.000
+CopyAnim_Button.TextWrapped = true
+
+-- COPY CHAT (replaces Focus)
+CopyChat_Button.Name = "CopyChat_Button"
+CopyChat_Button.Parent = Target_Section
+CopyChat_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CopyChat_Button.BackgroundTransparency = 0.500
+CopyChat_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+CopyChat_Button.BorderSizePixel = 0
+CopyChat_Button.Position = UDim2.new(0, 175, 0, 160)
+CopyChat_Button.Size = UDim2.new(0, 140, 0, 28)
+CopyChat_Button.Font = Enum.Font.Oswald
+CopyChat_Button.Text = "Copy Chat"
+CopyChat_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+CopyChat_Button.TextScaled = true
+CopyChat_Button.TextSize = 14.000
+CopyChat_Button.TextWrapped = true
+
+BenxTarget_Button.Name = "BenxTarget_Button"
+BenxTarget_Button.Parent = Target_Section
+BenxTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+BenxTarget_Button.BackgroundTransparency = 0.500
+BenxTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+BenxTarget_Button.BorderSizePixel = 0
+BenxTarget_Button.Position = UDim2.new(0, 15, 0, 160)
+BenxTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+BenxTarget_Button.Font = Enum.Font.Oswald
+BenxTarget_Button.Text = "Bang"
+BenxTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+BenxTarget_Button.TextScaled = true
+BenxTarget_Button.TextSize = 14.000
+BenxTarget_Button.TextWrapped = true
+
+HeadsitTarget_Button.Name = "HeadsitTarget_Button"
+HeadsitTarget_Button.Parent = Target_Section
+HeadsitTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+HeadsitTarget_Button.BackgroundTransparency = 0.500
+HeadsitTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+HeadsitTarget_Button.BorderSizePixel = 0
+HeadsitTarget_Button.Position = UDim2.new(0, 175, 0, 200)
+HeadsitTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+HeadsitTarget_Button.Font = Enum.Font.Oswald
+HeadsitTarget_Button.Text = "Headsit"
+HeadsitTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+HeadsitTarget_Button.TextScaled = true
+HeadsitTarget_Button.TextSize = 14.000
+HeadsitTarget_Button.TextWrapped = true
+
+StandTarget_Button.Name = "StandTarget_Button"
+StandTarget_Button.Parent = Target_Section
+StandTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+StandTarget_Button.BackgroundTransparency = 0.500
+StandTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+StandTarget_Button.BorderSizePixel = 0
+StandTarget_Button.Position = UDim2.new(0, 15, 0, 200)
+StandTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+StandTarget_Button.Font = Enum.Font.Oswald
+StandTarget_Button.Text = "Stand"
+StandTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+StandTarget_Button.TextScaled = true
+StandTarget_Button.TextSize = 14.000
+StandTarget_Button.TextWrapped = true
+
+BackpackTarget_Button.Name = "BackpackTarget_Button"
+BackpackTarget_Button.Parent = Target_Section
+BackpackTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+BackpackTarget_Button.BackgroundTransparency = 0.500
+BackpackTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+BackpackTarget_Button.BorderSizePixel = 0
+BackpackTarget_Button.Position = UDim2.new(0, 175, 0, 240)
+BackpackTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+BackpackTarget_Button.Font = Enum.Font.Oswald
+BackpackTarget_Button.Text = "Backpack"
+BackpackTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+BackpackTarget_Button.TextScaled = true
+BackpackTarget_Button.TextSize = 14.000
+BackpackTarget_Button.TextWrapped = true
+
+DoggyTarget_Button.Name = "DoggyTarget_Button"
+DoggyTarget_Button.Parent = Target_Section
+DoggyTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+DoggyTarget_Button.BackgroundTransparency = 0.500
+DoggyTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+DoggyTarget_Button.BorderSizePixel = 0
+DoggyTarget_Button.Position = UDim2.new(0, 15, 0, 240)
+DoggyTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+DoggyTarget_Button.Font = Enum.Font.Oswald
+DoggyTarget_Button.Text = "Doggy"
+DoggyTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+DoggyTarget_Button.TextScaled = true
+DoggyTarget_Button.TextSize = 14.000
+DoggyTarget_Button.TextWrapped = true
+
+DragTarget_Button.Name = "DragTarget_Button"
+DragTarget_Button.Parent = Target_Section
+DragTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+DragTarget_Button.BackgroundTransparency = 0.500
+DragTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+DragTarget_Button.BorderSizePixel = 0
+DragTarget_Button.Position = UDim2.new(0, 15, 0, 280)
+DragTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+DragTarget_Button.Font = Enum.Font.Oswald
+DragTarget_Button.Text = "Drag"
+DragTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+DragTarget_Button.TextScaled = true
+DragTarget_Button.TextSize = 14.000
+DragTarget_Button.TextWrapped = true
+
+PushTarget_Button.Name = "PushTarget_Button"
+PushTarget_Button.Parent = Target_Section
+PushTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+PushTarget_Button.BackgroundTransparency = 0.500
+PushTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+PushTarget_Button.BorderSizePixel = 0
+PushTarget_Button.Position = UDim2.new(0, 175, 0, 280)
+PushTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+PushTarget_Button.Font = Enum.Font.Oswald
+PushTarget_Button.Text = "Push"
+PushTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+PushTarget_Button.TextScaled = true
+PushTarget_Button.TextSize = 14.000
+PushTarget_Button.TextWrapped = true
+
+WhitelistTarget_Button.Name = "WhitelistTarget_Button"
+WhitelistTarget_Button.Parent = Target_Section
+WhitelistTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+WhitelistTarget_Button.BackgroundTransparency = 0.500
+WhitelistTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+WhitelistTarget_Button.BorderSizePixel = 0
+WhitelistTarget_Button.Position = UDim2.new(0, 175, 0, 320)
+WhitelistTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+WhitelistTarget_Button.Font = Enum.Font.Oswald
+WhitelistTarget_Button.Text = "Whitelist"
+WhitelistTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+WhitelistTarget_Button.TextScaled = true
+WhitelistTarget_Button.TextSize = 14.000
+WhitelistTarget_Button.TextWrapped = true
+
+TeleportTarget_Button.Name = "TeleportTarget_Button"
+TeleportTarget_Button.Parent = Target_Section
+TeleportTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+TeleportTarget_Button.BackgroundTransparency = 0.500
+TeleportTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TeleportTarget_Button.BorderSizePixel = 0
+TeleportTarget_Button.Position = UDim2.new(0, 15, 0, 320)
+TeleportTarget_Button.Size = UDim2.new(0, 140, 0, 28)
+TeleportTarget_Button.Font = Enum.Font.Oswald
+TeleportTarget_Button.Text = "Teleport"
+TeleportTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+TeleportTarget_Button.TextScaled = true
+TeleportTarget_Button.TextSize = 14.000
+TeleportTarget_Button.TextWrapped = true
+
+-- Spammer Section
+Spammer_Section.Name = "Spammer_Section"
+Spammer_Section.Parent = Background
+Spammer_Section.Active = true
+Spammer_Section.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Spammer_Section.BackgroundTransparency = 1.000
+Spammer_Section.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Spammer_Section.BorderSizePixel = 0
+Spammer_Section.Position = UDim2.new(0, 90, 0, 25)
+Spammer_Section.Size = UDim2.new(0, 330, 0, 275)
+Spammer_Section.Visible = false
+Spammer_Section.CanvasSize = UDim2.new(0, 0, 0.3, 0)
+Spammer_Section.ScrollBarThickness = 5
+
+FangCustomSpam_Button.Name = "FangCustomSpam_Button"
+FangCustomSpam_Button.Parent = Spammer_Section
+FangCustomSpam_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+FangCustomSpam_Button.BackgroundTransparency = 0.500
+FangCustomSpam_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FangCustomSpam_Button.BorderSizePixel = 0
+FangCustomSpam_Button.Position = UDim2.new(0, 15, 0, 15)
+FangCustomSpam_Button.Size = UDim2.new(0, 300, 0, 35)
+FangCustomSpam_Button.Font = Enum.Font.Oswald
+FangCustomSpam_Button.Text = "FANG CUSTOME SPAM💢"
+FangCustomSpam_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FangCustomSpam_Button.TextScaled = true
+FangCustomSpam_Button.TextSize = 14.000
+FangCustomSpam_Button.TextWrapped = true
+
+-- Misc Section
+Misc_Section.Name = "Misc_Section"
+Misc_Section.Parent = Background
+Misc_Section.Active = true
+Misc_Section.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Misc_Section.BackgroundTransparency = 1.000
+Misc_Section.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Misc_Section.BorderSizePixel = 0
+Misc_Section.Position = UDim2.new(0, 90, 0, 25)
+Misc_Section.Size = UDim2.new(0, 330, 0, 275)
+Misc_Section.Visible = false
+Misc_Section.CanvasSize = UDim2.new(0, 0, 1.1, 0)
+Misc_Section.ScrollBarThickness = 5
+
+AntiFling_Button.Name = "AntiFling_Button"
+AntiFling_Button.Parent = Misc_Section
+AntiFling_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+AntiFling_Button.BackgroundTransparency = 0.500
+AntiFling_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+AntiFling_Button.BorderSizePixel = 0
+AntiFling_Button.Position = UDim2.new(0, 15, 0, 15)
+AntiFling_Button.Size = UDim2.new(0, 140, 0, 28)
+AntiFling_Button.Font = Enum.Font.Oswald
+AntiFling_Button.Text = "Anti Fling"
+AntiFling_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+AntiFling_Button.TextScaled = true
+AntiFling_Button.TextSize = 14.000
+AntiFling_Button.TextWrapped = true
+
+AntiChatSpy_Button.Name = "AntiChatSpy_Button"
+AntiChatSpy_Button.Parent = Misc_Section
+AntiChatSpy_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+AntiChatSpy_Button.BackgroundTransparency = 0.500
+AntiChatSpy_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+AntiChatSpy_Button.BorderSizePixel = 0
+AntiChatSpy_Button.Position = UDim2.new(0, 175, 0, 15)
+AntiChatSpy_Button.Size = UDim2.new(0, 140, 0, 28)
+AntiChatSpy_Button.Font = Enum.Font.Oswald
+AntiChatSpy_Button.Text = "Anti Chat Spy"
+AntiChatSpy_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+AntiChatSpy_Button.TextScaled = true
+AntiChatSpy_Button.TextSize = 14.000
+AntiChatSpy_Button.TextWrapped = true
+
+AntiAFK_Button.Name = "AntiAFK_Button"
+AntiAFK_Button.Parent = Misc_Section
+AntiAFK_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+AntiAFK_Button.BackgroundTransparency = 0.500
+AntiAFK_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+AntiAFK_Button.BorderSizePixel = 0
+AntiAFK_Button.Position = UDim2.new(0, 15, 0, 55)
+AntiAFK_Button.Size = UDim2.new(0, 140, 0, 28)
+AntiAFK_Button.Font = Enum.Font.Oswald
+AntiAFK_Button.Text = "Anti AFK"
+AntiAFK_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+AntiAFK_Button.TextScaled = true
+AntiAFK_Button.TextSize = 14.000
+AntiAFK_Button.TextWrapped = true
+
+AntiVoid_Button.Name = "AntiVoid_Button"
+AntiVoid_Button.Parent = Misc_Section
+AntiVoid_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+AntiVoid_Button.BackgroundTransparency = 0.500
+AntiVoid_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+AntiVoid_Button.BorderSizePixel = 0
+AntiVoid_Button.Position = UDim2.new(0, 175, 0, 55)
+AntiVoid_Button.Size = UDim2.new(0, 140, 0, 28)
+AntiVoid_Button.Font = Enum.Font.Oswald
+AntiVoid_Button.Text = "Anti Void"
+AntiVoid_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+AntiVoid_Button.TextScaled = true
+AntiVoid_Button.TextSize = 14.000
+AntiVoid_Button.TextWrapped = true
+
+Day_Button.Name = "Day_Button"
+Day_Button.Parent = Misc_Section
+Day_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Day_Button.BackgroundTransparency = 0.500
+Day_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Day_Button.BorderSizePixel = 0
+Day_Button.Position = UDim2.new(0, 15, 0, 95)
+Day_Button.Size = UDim2.new(0, 140, 0, 28)
+Day_Button.Font = Enum.Font.Oswald
+Day_Button.Text = "Day"
+Day_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+Day_Button.TextScaled = true
+Day_Button.TextSize = 14.000
+Day_Button.TextWrapped = true
+
+Night_Button.Name = "Night_Button"
+Night_Button.Parent = Misc_Section
+Night_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Night_Button.BackgroundTransparency = 0.500
+Night_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Night_Button.BorderSizePixel = 0
+Night_Button.Position = UDim2.new(0, 175, 0, 95)
+Night_Button.Size = UDim2.new(0, 140, 0, 28)
+Night_Button.Font = Enum.Font.Oswald
+Night_Button.Text = "Night"
+Night_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+Night_Button.TextScaled = true
+Night_Button.TextSize = 14.000
+Night_Button.TextWrapped = true
+
+Explode_Button.Name = "Explode_Button"
+Explode_Button.Parent = Misc_Section
+Explode_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Explode_Button.BackgroundTransparency = 0.500
+Explode_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Explode_Button.BorderSizePixel = 0
+Explode_Button.Position = UDim2.new(0, 15, 0, 175)
+Explode_Button.Size = UDim2.new(0, 140, 0, 28)
+Explode_Button.Font = Enum.Font.Oswald
+Explode_Button.Text = "Explode"
+Explode_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+Explode_Button.TextScaled = true
+Explode_Button.TextSize = 14.000
+Explode_Button.TextWrapped = true
+
+Rejoin_Button.Name = "Rejoin_Button"
+Rejoin_Button.Parent = Misc_Section
+Rejoin_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Rejoin_Button.BackgroundTransparency = 0.500
+Rejoin_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Rejoin_Button.BorderSizePixel = 0
+Rejoin_Button.Position = UDim2.new(0, 15, 0, 215)
+Rejoin_Button.Size = UDim2.new(0, 140, 0, 28)
+Rejoin_Button.Font = Enum.Font.Oswald
+Rejoin_Button.Text = "Rejoin"
+Rejoin_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+Rejoin_Button.TextScaled = true
+Rejoin_Button.TextSize = 14.000
+Rejoin_Button.TextWrapped = true
+
+CMDX_Button.Name = "CMDX_Button"
+CMDX_Button.Parent = Misc_Section
+CMDX_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CMDX_Button.BackgroundTransparency = 0.500
+CMDX_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+CMDX_Button.BorderSizePixel = 0
+CMDX_Button.Position = UDim2.new(0, 175, 0, 135)
+CMDX_Button.Size = UDim2.new(0, 140, 0, 28)
+CMDX_Button.Font = Enum.Font.Oswald
+CMDX_Button.Text = "CMDX"
+CMDX_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+CMDX_Button.TextScaled = true
+CMDX_Button.TextSize = 14.000
+CMDX_Button.TextWrapped = true
+
+InfYield_Button.Name = "InfYield_Button"
+InfYield_Button.Parent = Misc_Section
+InfYield_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+InfYield_Button.BackgroundTransparency = 0.500
+InfYield_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+InfYield_Button.BorderSizePixel = 0
+InfYield_Button.Position = UDim2.new(0, 15, 0, 135)
+InfYield_Button.Size = UDim2.new(0, 140, 0, 28)
+InfYield_Button.Font = Enum.Font.Oswald
+InfYield_Button.Text = "Infinite Yield"
+InfYield_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+InfYield_Button.TextScaled = true
+InfYield_Button.TextSize = 14.000
+InfYield_Button.TextWrapped = true
+
+FreeEmotes_Button.Name = "FreeEmotes_Button"
+FreeEmotes_Button.Parent = Misc_Section
+FreeEmotes_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+FreeEmotes_Button.BackgroundTransparency = 0.500
+FreeEmotes_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FreeEmotes_Button.BorderSizePixel = 0
+FreeEmotes_Button.Position = UDim2.new(0, 175, 0, 175)
+FreeEmotes_Button.Size = UDim2.new(0, 140, 0, 28)
+FreeEmotes_Button.Font = Enum.Font.Oswald
+FreeEmotes_Button.Text = "Free Emotes"
+FreeEmotes_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FreeEmotes_Button.TextScaled = true
+FreeEmotes_Button.TextSize = 14.000
+FreeEmotes_Button.TextWrapped = true
+
+Serverhop_Button.Name = "Serverhop_Button"
+Serverhop_Button.Parent = Misc_Section
+Serverhop_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Serverhop_Button.BackgroundTransparency = 0.500
+Serverhop_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Serverhop_Button.BorderSizePixel = 0
+Serverhop_Button.Position = UDim2.new(0, 175, 0, 215)
+Serverhop_Button.Size = UDim2.new(0, 140, 0, 28)
+Serverhop_Button.Font = Enum.Font.Oswald
+Serverhop_Button.Text = "Server Hop"
+Serverhop_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+Serverhop_Button.TextScaled = true
+Serverhop_Button.TextSize = 14.000
+Serverhop_Button.TextWrapped = true
+
+ChatBox_Input.Name = "ChatBox_Input"
+ChatBox_Input.Parent = Misc_Section
+ChatBox_Input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ChatBox_Input.BorderColor3 = Color3.fromRGB(255, 0, 0)
+ChatBox_Input.Position = UDim2.new(0, 15, 0, 255)
+ChatBox_Input.Size = UDim2.new(0, 300, 0, 40)
+ChatBox_Input.Font = Enum.Font.Oswald
+ChatBox_Input.PlaceholderText = "Chat bypass"
+ChatBox_Input.Text = ""
+ChatBox_Input.TextColor3 = Color3.fromRGB(255, 0, 0)
+ChatBox_Input.TextSize = 14.000
+ChatBox_Input.TextWrapped = true
+ChatBox_Input.TextXAlignment = Enum.TextXAlignment.Left
+ChatBox_Input.TextYAlignment = Enum.TextYAlignment.Top
+
+-- Credits Section
+Credits_Section.Name = "Credits_Section"
+Credits_Section.Parent = Background
+Credits_Section.Active = true
+Credits_Section.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Credits_Section.BackgroundTransparency = 1.000
+Credits_Section.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Credits_Section.BorderSizePixel = 0
+Credits_Section.Position = UDim2.new(0, 90, 0, 25)
+Credits_Section.Size = UDim2.new(0, 330, 0, 275)
+Credits_Section.Visible = false
+Credits_Section.CanvasSize = UDim2.new(0, 0, 0.8, 0)
+Credits_Section.ScrollBarThickness = 5
+
+Credits_Label.Name = "Credits_Label"
+Credits_Label.Parent = Credits_Section
+Credits_Label.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Credits_Label.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Credits_Label.BorderSizePixel = 0
+Credits_Label.Position = UDim2.new(0, 15, 0, 30)
+Credits_Label.Size = UDim2.new(0, 300, 0, 200)
+Credits_Label.Font = Enum.Font.SourceSans
+Credits_Label.Text = "Mᴀᴅᴇ Bʏ > Eᴀ_Fᴀɴɢ\n👑Tʜᴇ-Cʀᴇᴀᴛᴏʀ ᴏғ『Eɴᴅʟᴇss Aᴜʀᴀ』💢"
+Credits_Label.TextColor3 = Color3.fromRGB(255, 0, 0)
+Credits_Label.TextSize = 22.000
+Credits_Label.TextWrapped = true
+Credits_Label.TextXAlignment = Enum.TextXAlignment.Left
+Credits_Label.TextYAlignment = Enum.TextYAlignment.Top
+
+Crown.Name = "Crown"
+Crown.Parent = Background
+Crown.AnchorPoint = Vector2.new(0.300000012, 0.800000012)
+Crown.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Crown.BackgroundTransparency = 1.000
+Crown.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Crown.BorderSizePixel = 0
+Crown.Rotation = -20.000
+Crown.Size = UDim2.new(0, 60, 0, 60)
+Crown.Image = "rbxassetid://12298407748"
+Crown.ImageColor3 = Color3.fromRGB(255, 0, 0)
+
+Assets.Name = "Assets"
+Assets.Parent = SysBroker
+
+Ticket_Asset.Name = "Ticket_Asset"
+Ticket_Asset.Parent = Assets
+Ticket_Asset.AnchorPoint = Vector2.new(0, 0.5)
+Ticket_Asset.BackgroundTransparency = 1.000
+Ticket_Asset.BorderSizePixel = 0
+Ticket_Asset.LayoutOrder = 5
+Ticket_Asset.Position = UDim2.new(1, 5, 0.5, 0)
+Ticket_Asset.Size = UDim2.new(0, 20, 0, 20)
+Ticket_Asset.ZIndex = 2
+Ticket_Asset.Image = "rbxassetid://3926305904"
+Ticket_Asset.ImageColor3 = Color3.fromRGB(255, 0, 0)
+Ticket_Asset.ImageRectOffset = Vector2.new(424, 4)
+Ticket_Asset.ImageRectSize = Vector2.new(36, 36)
+
+Click_Asset.Name = "Click_Asset"
+Click_Asset.Parent = Assets
+Click_Asset.AnchorPoint = Vector2.new(0, 0.5)
+Click_Asset.BackgroundTransparency = 1.000
+Click_Asset.BorderSizePixel = 0
+Click_Asset.Position = UDim2.new(1, 5, 0.5, 0)
+Click_Asset.Size = UDim2.new(0, 20, 0, 20)
+Click_Asset.ZIndex = 2
+Click_Asset.Image = "rbxassetid://3926305904"
+Click_Asset.ImageColor3 = Color3.fromRGB(100, 100, 100)
+Click_Asset.ImageRectOffset = Vector2.new(204, 964)
+Click_Asset.ImageRectSize = Vector2.new(36, 36)
+
+Velocity_Asset.AngularVelocity = Vector3.new(0,0,0)
+Velocity_Asset.MaxTorque = Vector3.new(50000,50000,50000)
+Velocity_Asset.P = 1250
+Velocity_Asset.Name = "BreakVelocity"
+Velocity_Asset.Parent = Assets
+
+Fly_Pad.Name = "Fly_Pad"
+Fly_Pad.Parent = Assets
+Fly_Pad.BackgroundTransparency = 1.000
+Fly_Pad.Position = UDim2.new(0.1, 0, 0.6, 0)
+Fly_Pad.Size = UDim2.new(0, 100, 0, 100)
+Fly_Pad.ZIndex = 2
+Fly_Pad.Image = "rbxassetid://6764432293"
+Fly_Pad.ImageRectOffset = Vector2.new(713, 315)
+Fly_Pad.ImageRectSize = Vector2.new(75, 75)
+Fly_Pad.Visible = false
+
+UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 30, 30)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))}
+UIGradient.Rotation = 45
+UIGradient.Parent = Fly_Pad
+
+FlyAButton.Name = "FlyAButton"
+FlyAButton.Parent = Fly_Pad
+FlyAButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FlyAButton.BackgroundTransparency = 1.000
+FlyAButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FlyAButton.BorderSizePixel = 0
+FlyAButton.Position = UDim2.new(0, 0, 0, 30)
+FlyAButton.Size = UDim2.new(0, 30, 0, 40)
+FlyAButton.Font = Enum.Font.Oswald
+FlyAButton.Text = ""
+FlyAButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlyAButton.TextSize = 25.000
+FlyAButton.TextWrapped = true
+
+FlyDButton.Name = "FlyDButton"
+FlyDButton.Parent = Fly_Pad
+FlyDButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FlyDButton.BackgroundTransparency = 1.000
+FlyDButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FlyDButton.BorderSizePixel = 0
+FlyDButton.Position = UDim2.new(0, 70, 0, 30)
+FlyDButton.Size = UDim2.new(0, 30, 0, 40)
+FlyDButton.Font = Enum.Font.Oswald
+FlyDButton.Text = ""
+FlyDButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlyDButton.TextSize = 25.000
+FlyDButton.TextWrapped = true
+
+FlyWButton.Name = "FlyWButton"
+FlyWButton.Parent = Fly_Pad
+FlyWButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FlyWButton.BackgroundTransparency = 1.000
+FlyWButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FlyWButton.BorderSizePixel = 0
+FlyWButton.Position = UDim2.new(0, 30, 0, 0)
+FlyWButton.Size = UDim2.new(0, 40, 0, 30)
+FlyWButton.Font = Enum.Font.Oswald
+FlyWButton.Text = ""
+FlyWButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlyWButton.TextSize = 25.000
+FlyWButton.TextWrapped = true
+
+FlySButton.Name = "FlySButton"
+FlySButton.Parent = Fly_Pad
+FlySButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FlySButton.BackgroundTransparency = 1.000
+FlySButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FlySButton.BorderSizePixel = 0
+FlySButton.Position = UDim2.new(0, 30, 0, 70)
+FlySButton.Size = UDim2.new(0, 40, 0, 30)
+FlySButton.Font = Enum.Font.Oswald
+FlySButton.Text = ""
+FlySButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlySButton.TextSize = 25.000
+FlySButton.TextWrapped = true
+
+OpenClose.Name = "OpenClose"
+OpenClose.Parent = SysBroker
+OpenClose.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+OpenClose.BorderColor3 = Color3.fromRGB(0, 0, 0)
+OpenClose.BorderSizePixel = 0
+OpenClose.Position = UDim2.new(0, 0, 0.5, 0)
+OpenClose.Size = UDim2.new(0, 25, 0, 25)
+OpenClose.Image = "rbxassetid://12298407748"
+OpenClose.ImageColor3 = Color3.fromRGB(255, 0, 0)
+
+UICornerOC.CornerRadius = UDim.new(1, 0)
+UICornerOC.Parent = OpenClose
+
+-- Create toggles
 CreateToggle(AntiRagdoll_Button)
 CreateToggle(PushAura_Button)
 CreateToggle(SpamMines_Button)
@@ -804,8 +1835,8 @@ CreateClicker(Respawn_Button)
 CreateClicker(FlySpeed_Button)
 
 CreateToggle(ViewTarget_Button)
-CreateToggle(FlingTarget_Button)
-CreateToggle(FocusTarget_Button)
+CreateToggle(CopyAnim_Button)  -- Toggle for Copy Anim
+CreateToggle(CopyChat_Button)  -- Toggle for Copy Chat
 CreateToggle(BenxTarget_Button)
 CreateToggle(HeadsitTarget_Button)
 CreateToggle(StandTarget_Button)
@@ -819,7 +1850,7 @@ CreateClicker(TeleportTarget_Button)
 CreateToggle(AntiFling_Button)
 CreateToggle(AntiChatSpy_Button)
 CreateToggle(AntiAFK_Button)
-CreateToggle(AntiVoid_Button)  -- Anti-Void toggle
+CreateToggle(AntiVoid_Button)
 CreateClicker(Day_Button)
 CreateClicker(Night_Button)
 CreateClicker(Rejoin_Button)
@@ -829,7 +1860,7 @@ CreateClicker(FreeEmotes_Button)
 CreateClicker(InfYield_Button)
 CreateClicker(Serverhop_Button)
 
--- [SECTION CHANGE LOGIC - Same as before]
+-- [SECTION CHANGE LOGIC]
 local function ChangeSection(SectionClicked)
 	SectionClickedName = string.split(SectionClicked.Name,"_")[1]
 	for i,v in pairs(SectionList:GetChildren()) do
@@ -860,8 +1891,7 @@ Spammer_Section_Button.MouseButton1Click:Connect(function() ChangeSection(Spamme
 Misc_Section_Button.MouseButton1Click:Connect(function() ChangeSection(Misc_Section_Button) end)
 Credits_Section_Button.MouseButton1Click:Connect(function() ChangeSection(Credits_Section_Button) end)
 
--- [GAME SECTION BUTTONS - Same logic with capitalized text]
--- AntiRagdoll
+-- [GAME SECTION BUTTONS - Same logic]
 AntiRagdollFunction = nil
 AntiRagdoll_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(AntiRagdoll_Button)
@@ -879,7 +1909,6 @@ AntiRagdoll_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- PushAura
 PushAura_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(PushAura_Button)
 	if PushAura_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
@@ -896,7 +1925,6 @@ PushAura_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- SpamMines
 AntiMinesFunction = nil
 SpamMines_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(SpamMines_Button)
@@ -921,7 +1949,6 @@ SpamMines_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- PotionFling
 PotionFling_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(PotionFling_Button)
 	if PotionFling_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
@@ -956,7 +1983,6 @@ PotionFling_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- TouchFling
 TouchFling_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(TouchFling_Button)
 	if TouchFling_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
@@ -969,13 +1995,12 @@ TouchFling_Button.MouseButton1Click:Connect(function()
 			ToggleVoidProtection(true)
 		end
 	else
-		if FlingTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-			ChangeToggleColor(FlingTarget_Button)
+		if CopyAnim_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+			ChangeToggleColor(CopyAnim_Button)
 		end
 	end
 end)
 
--- PotionDi
 PotionDi_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(PotionDi_Button)
 	if PotionDi_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
@@ -1000,7 +2025,6 @@ PotionDi_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- VoidProtection
 VoidProtection_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(VoidProtection_Button)
 	if VoidProtection_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
@@ -1010,7 +2034,6 @@ VoidProtection_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- FreePushTool
 FreePushTool_Button.MouseButton1Click:Connect(function()
 	local ModdedPush = Instance.new("Tool")
 	ModdedPush.Name = "ModdedPush"
@@ -1044,7 +2067,6 @@ FreePushTool_Button.MouseButton1Click:Connect(function()
 	ModdedPush.Parent = plr.Backpack
 end)
 
--- BreakCannons
 BreakCannons_Button.MouseButton1Click:Connect(function()
 	ToggleVoidProtection(true)
 	TeleportTO(0,-10000,0,"pos")
@@ -1070,7 +2092,6 @@ BreakCannons_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- PushAll
 PushAll_Button.MouseButton1Click:Connect(function()
 	local oldpos = GetRoot(plr).Position
 	for i,v in pairs(Players:GetPlayers()) do
@@ -1085,7 +2106,6 @@ PushAll_Button.MouseButton1Click:Connect(function()
 	TeleportTO(oldpos.X,oldpos.Y,oldpos.Z,"pos","safe")
 end)
 
--- LethalCannons
 LethalCannons_Button.MouseButton1Click:Connect(function()
 	for i,v in pairs(CannonsFolders[1]:GetChildren()) do
 		if v.Name == "Cannon" then
@@ -1111,7 +2131,6 @@ LethalCannons_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- ChatAlert
 ChatAlert_Button.MouseButton1Click:Connect(function()
 	for i = 1,3 do
 		local args = {[1] = "\u{205F}",[2] = "All"}
@@ -1119,7 +2138,6 @@ ChatAlert_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- TP Buttons
 CannonTP1_Button.MouseButton1Click:Connect(function() TeleportTO(-61, 34, -228,"pos","safe") end)
 CannonTP2_Button.MouseButton1Click:Connect(function() TeleportTO(50, 34, -228,"pos","safe") end)
 CannonTP3_Button.MouseButton1Click:Connect(function() TeleportTO(-6, 35, -106,"pos","safe") end)
@@ -1131,7 +2149,6 @@ SpiralStairsTP_Button.MouseButton1Click:Connect(function() TeleportTO(151, 847, 
 SkyscraperTP_Button.MouseButton1Click:Connect(function() TeleportTO(142, 1033, -192,"pos","safe") end)
 PoolTP_Button.MouseButton1Click:Connect(function() TeleportTO(-133, 65, -321,"pos","safe") end)
 
--- CMDBar
 CMDBar.FocusLost:Connect(function()
 	command = CMDBar.Text
 	Players:Chat(command)
@@ -1139,8 +2156,7 @@ CMDBar.FocusLost:Connect(function()
 	CMDBar.Text = ""
 end)
 
--- [CHARACTER SECTION - Keep capitalized text]
--- WalkSpeed
+-- [CHARACTER SECTION]
 WalkSpeed_Button.MouseButton1Click:Connect(function()
 	pcall(function()
 		local Speed = WalkSpeed_Input.Text:gsub("%D", "")
@@ -1150,7 +2166,6 @@ WalkSpeed_Button.MouseButton1Click:Connect(function()
 	end)
 end)
 
--- JumpPower
 JumpPower_Button.MouseButton1Click:Connect(function()
 	pcall(function()
 		local Power = JumpPower_Input.Text:gsub("%D", "")
@@ -1160,7 +2175,6 @@ JumpPower_Button.MouseButton1Click:Connect(function()
 	end)
 end)
 
--- FlySpeed
 FlySpeed_Button.MouseButton1Click:Connect(function()
 	pcall(function()
 		local Speed = FlySpeed_Input.Text:gsub("%D", "")
@@ -1170,7 +2184,6 @@ FlySpeed_Button.MouseButton1Click:Connect(function()
 	end)
 end)
 
--- Respawn
 Respawn_Button.MouseButton1Click:Connect(function()
 	local RsP = GetRoot(plr).Position
 	plr.Character.Humanoid.Health = 0
@@ -1178,19 +2191,16 @@ Respawn_Button.MouseButton1Click:Connect(function()
 	TeleportTO(RsP.X,RsP.Y,RsP.Z,"pos","safe")
 end)
 
--- SaveCheckpoint
 SaveCheckpoint_Button.MouseButton1Click:Connect(function()
 	SavedCheckpoint = GetRoot(plr).Position
 	SendNotify("System Broken","Checkpoint saved.",5)
 end)
 
--- ClearCheckpoint
 ClearCheckpoint_Button.MouseButton1Click:Connect(function()
 	SavedCheckpoint = nil
 	SendNotify("System Broken","Checkpoint cleared.",5)
 end)
 
--- Fly
 local flying = true
 local ctrl = {f = 0, b = 0, l = 0, r = 0}
 local lastctrl = {f = 0, b = 0, l = 0, r = 0}
@@ -1322,7 +2332,7 @@ ClickTargetTool_Button.MouseButton1Click:Connect(function()
 	GetTargetTool.Parent = plr.Backpack
 end)
 
--- Sticky attach helper with specific animations
+-- Sticky attach helper
 local function startStickyMode(button, getTargetPart, getPlayerCFrame, animId)
 	local running = true
 	local wasVoid = VoidProtection_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0)
@@ -1355,25 +2365,40 @@ local function startStickyMode(button, getTargetPart, getPlayerCFrame, animId)
 	end)
 end
 
--- FlingTarget
-FlingTarget_Button.MouseButton1Click:Connect(function()
+-- COPY ANIM BUTTON
+CopyAnim_Button.MouseButton1Click:Connect(function()
 	if TargetedPlayer ~= nil then
-		ChangeToggleColor(FlingTarget_Button)
-		if FlingTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-			if TouchFling_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0) then
-				ChangeToggleColor(TouchFling_Button)
-			end
-			local OldPos = GetRoot(plr).Position
-			ToggleFling(true)
-			repeat task.wait()
+		ChangeToggleColor(CopyAnim_Button)
+		if CopyAnim_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+			-- Loop to copy target's animation continuously
+			repeat
 				pcall(function()
-					PredictionTP(Players[TargetedPlayer],"safe")
+					local target = Players[TargetedPlayer]
+					if target and target.Character then
+						CopyTargetAnimation(target)
+					end
 				end)
-				task.wait()
-			until FlingTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
-			TeleportTO(OldPos.X,OldPos.Y,OldPos.Z,"pos","safe")
-		else
-			ToggleFling(false)
+				task.wait(1)  -- Check every second
+			until CopyAnim_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
+		end
+	end
+end)
+
+-- COPY CHAT BUTTON
+CopyChat_Button.MouseButton1Click:Connect(function()
+	if TargetedPlayer ~= nil then
+		ChangeToggleColor(CopyChat_Button)
+		if CopyChat_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+			-- Loop to copy target's chat continuously
+			repeat
+				pcall(function()
+					local target = Players[TargetedPlayer]
+					if target then
+						CopyTargetChat(target)
+					end
+				end)
+				task.wait(2)  -- Check every 2 seconds
+			until CopyChat_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
 		end
 	end
 end)
@@ -1390,23 +2415,6 @@ ViewTarget_Button.MouseButton1Click:Connect(function()
 				task.wait(0.5)
 			until ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
 			game.Workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
-		end
-	end
-end)
-
--- FocusTarget
-FocusTarget_Button.MouseButton1Click:Connect(function()
-	if TargetedPlayer ~= nil then
-		ChangeToggleColor(FocusTarget_Button)
-		if FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-			repeat
-				pcall(function()
-					local target = Players[TargetedPlayer]
-					TeleportTO(0,0,0,target)
-					Push(Players[TargetedPlayer])
-				end)
-				task.wait(0.2)
-			until FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
 		end
 	end
 end)
@@ -1433,7 +2441,6 @@ HeadsitTarget_Button.MouseButton1Click:Connect(function()
 			startStickyMode(HeadsitTarget_Button,
 				function(target) return target.Character:FindFirstChild("Head") end,
 				function(part) 
-					-- Front of face/mouth position
 					return part.CFrame * CFrame.new(0, -0.3, 1.2) 
 				end,
 				"507772104"
@@ -1442,7 +2449,7 @@ HeadsitTarget_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- StandTarget - No animation (original)
+-- StandTarget - No animation
 StandTarget_Button.MouseButton1Click:Connect(function()
 	if TargetedPlayer ~= nil then
 		ChangeToggleColor(StandTarget_Button)
@@ -1456,7 +2463,7 @@ StandTarget_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- BackpackTarget - No animation (original)
+-- BackpackTarget - No animation
 BackpackTarget_Button.MouseButton1Click:Connect(function()
 	if TargetedPlayer ~= nil then
 		ChangeToggleColor(BackpackTarget_Button)
@@ -1473,7 +2480,7 @@ BackpackTarget_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- DoggyTarget - No animation (original)
+-- DoggyTarget - No animation
 DoggyTarget_Button.MouseButton1Click:Connect(function()
 	if TargetedPlayer ~= nil then
 		ChangeToggleColor(DoggyTarget_Button)
@@ -1487,7 +2494,7 @@ DoggyTarget_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- DragTarget - No animation (original)
+-- DragTarget - No animation
 DragTarget_Button.MouseButton1Click:Connect(function()
 	if TargetedPlayer ~= nil then
 		ChangeToggleColor(DragTarget_Button)
@@ -1542,12 +2549,12 @@ TargetName_Input.FocusLost:Connect(function()
 	UpdateTarget(LabelTarget)
 end)
 
--- [SPAMMER SECTION - Small button]
+-- [SPAMMER SECTION]
 FangCustomSpam_Button.MouseButton1Click:Connect(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/THEBESTLEADERSHIP/EA_FANG/refs/heads/main/FANG%20CUSTOME%20SPAM%F0%9F%92%A2"))()
 end)
 
--- [MISC SECTION - Anti-Void replaces Shaders]
+-- [MISC SECTION]
 AntiFling_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(AntiFling_Button)
 	if AntiFling_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
@@ -1581,11 +2588,10 @@ AntiAFK_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Anti-Void Button (replaces Shaders)
+-- Anti-Void Button
 AntiVoid_Button.MouseButton1Click:Connect(function()
 	ChangeToggleColor(AntiVoid_Button)
 	if AntiVoid_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-		-- Load Anti-Void script
 		local antiVoidScript = [[
 			local Players = game:GetService("Players")
 			local RunService = game:GetService("RunService")
@@ -1746,7 +2752,6 @@ AntiVoid_Button.MouseButton1Click:Connect(function()
 		]]
 		loadstring(antiVoidScript)()
 	else
-		-- Turn off Anti-Void
 		_G.AntiVoidActive = false
 		if _G["EA_VoidFreedom_Engine"] then
 			_G["EA_VoidFreedom_Engine"]:Disconnect()
@@ -1756,7 +2761,6 @@ AntiVoid_Button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Day/Night (now work without shaders check)
 Day_Button.MouseButton1Click:Connect(function()
 	game:GetService("Lighting").ClockTime = 14
 end)
@@ -1765,17 +2769,14 @@ Night_Button.MouseButton1Click:Connect(function()
 	game:GetService("Lighting").ClockTime = 19
 end)
 
--- InfYield
 InfYield_Button.MouseButton1Click:Connect(function()
 	loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 end)
 
--- CMDX
 CMDX_Button.MouseButton1Click:Connect(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source",true))()
 end)
 
--- Explode
 Explode_Button.MouseButton1Click:Connect(function()
 	ToggleRagdoll(false)
 	task.wait()
@@ -1789,21 +2790,18 @@ Explode_Button.MouseButton1Click:Connect(function()
 	plr.Character.Humanoid:ChangeState(15)
 end)
 
--- FreeEmotes
 FreeEmotes_Button.MouseButton1Click:Connect(function()
 	if not FreeEmotesEnabled then
 		FreeEmotesEnabled = true
-		SendNotify("System Broken","Loading free emotes.\nCredits: Gi#7331")
+		SendNotify("System Broken","Loading free emotes.",5)
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/AllEmotes"))()
 	end
 end)
 
--- Rejoin
 Rejoin_Button.MouseButton1Click:Connect(function()
 	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, plr)
 end)
 
--- Serverhop
 Serverhop_Button.MouseButton1Click:Connect(function()
 	if httprequest then
 		local servers = {}
@@ -1828,7 +2826,7 @@ ChatBox_Input.FocusLost:Connect(function()
 	ChatBox_Input.Text = ""
 end)
 
--- [GUI FUNCTIONS - Same as before]
+-- [GUI FUNCTIONS]
 Players.PlayerRemoving:Connect(function(player)
 	pcall(function()
 		if player.Name == TargetedPlayer then
