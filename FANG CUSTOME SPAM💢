@@ -38,7 +38,7 @@ end
 local SpamWords = {
     "🍛 DALCHAWAL", "🥘 KARI CHAWAL", "🍚 RASMALAI", "🧆 GULAB JAMUN", "🥛 LASSI",
     "🍗 BIRYANI", "🌯 KATI ROLL", "🍛 CHHOLE", "🥘 PAV BHAJI", "🧆 SAMOSA",
-    "🍚 IDLI", "🥘 DOSA", "🍛 UTTHAPAM", "🍚 PONGAL", "🥛 CHAAS",
+    "SCRIPT BY FANG💀", "🥘 DOSA", "🍛 UTTHAPAM", "🍚 PONGAL", "🥛 CHAAS",
     "🍗 TANDOORI", "🌯 KULCHA", "🍛 PANEER", "🥘 MALAI KOFTA", "🧆 KACHORI",
     "🍚 PULAO", "🥘 RAJMA", "🍛 KADHI", "🧆 ALOO TIKKI", "🍗 BUTTER CHICKEN",
     "🌯 NAAN", "🍛 SHAHI PANEER", "🥘 DAL MAKHANI", "🍚 JEERA RICE", "🧆 MIRCHI",
@@ -46,9 +46,9 @@ local SpamWords = {
     "🧆 PAAN", "🍛 MUSHROOM", "🥘 PALAK PANEER", "🍚 TOMATO RICE", "🍗 CHICKEN 65",
     "🌯 ROTI", "🍛 GATTI", "🥘 KHICHDI", "🧆 BHEL PURI", "🍗 MURGH MALAI",
     "🍚 FRIED RICE", "🥘 NOODLES", "🍛 MANCHURIAN", "🧆 SPRING ROLL", "🍗 CHILLI CHICKEN",
-    "🔥 SPICY", "🧀 CHEESY", "🍛 EXTRA MASALA", "🥘 GARLIC NAAN", "🍚 BUTTER NAAN"
+    "🔥 SPICY", "🧀 CHEESY", "🍛 EXTRA MASALA", "SCRIPT BY FANG💀", "🍚 BUTTER NAAN"
 }
-local CurrentPatternPool = {"__", "~~", "``", "@@", "++"}
+local CurrentPatternPool = {"__", "~~", "``", "@@", "_-"}
 
 ----------------------------------------------------------------
 -- DRAGGABLE MENU TOGGLE BUTTON (Custom Logo + "C.S" Text)
