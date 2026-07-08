@@ -311,15 +311,15 @@ local ClickTargetTool_Button = Instance.new("ImageButton")
 local TargetName_Input = Instance.new("TextBox")
 local UserIDTargetLabel = Instance.new("TextLabel")
 local ViewTarget_Button = Instance.new("TextButton")
-local FocusTarget_Button = Instance.new("TextButton")  -- added Focus
-local ESPTarget_Button = Instance.new("TextButton")   -- added ESP
+local FocusTarget_Button = Instance.new("TextButton")
+local ESPTarget_Button = Instance.new("TextButton")
 local CopyAnim_Button = Instance.new("TextButton")
 local ChatSync_Button = Instance.new("TextButton")
 local BenxTarget_Button = Instance.new("TextButton")
 local PushTarget_Button = Instance.new("TextButton")
 local WhitelistTarget_Button = Instance.new("TextButton")
 local TeleportTarget_Button = Instance.new("TextButton")
-local HeadsitTarget_Button = Instance.new("TextButton")
+local BlowjobTarget_Button = Instance.new("TextButton")  -- Renamed from Headsit
 local StandTarget_Button = Instance.new("TextButton")
 local BackpackTarget_Button = Instance.new("TextButton")
 local DoggyTarget_Button = Instance.new("TextButton")
@@ -1288,20 +1288,20 @@ TeleportTarget_Button.TextScaled = true
 TeleportTarget_Button.TextSize = 14.000
 TeleportTarget_Button.TextWrapped = true
 
-HeadsitTarget_Button.Name = "HeadsitTarget_Button"
-HeadsitTarget_Button.Parent = Target_Section
-HeadsitTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-HeadsitTarget_Button.BackgroundTransparency = 0.500
-HeadsitTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
-HeadsitTarget_Button.BorderSizePixel = 0
-HeadsitTarget_Button.Position = UDim2.new(0, 25, 0, 300)
-HeadsitTarget_Button.Size = UDim2.new(0, 150, 0, 30)
-HeadsitTarget_Button.Font = Enum.Font.Oswald
-HeadsitTarget_Button.Text = "Headsit"
-HeadsitTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
-HeadsitTarget_Button.TextScaled = true
-HeadsitTarget_Button.TextSize = 14.000
-HeadsitTarget_Button.TextWrapped = true
+BlowjobTarget_Button.Name = "BlowjobTarget_Button"
+BlowjobTarget_Button.Parent = Target_Section
+BlowjobTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+BlowjobTarget_Button.BackgroundTransparency = 0.500
+BlowjobTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+BlowjobTarget_Button.BorderSizePixel = 0
+BlowjobTarget_Button.Position = UDim2.new(0, 25, 0, 300)
+BlowjobTarget_Button.Size = UDim2.new(0, 150, 0, 30)
+BlowjobTarget_Button.Font = Enum.Font.Oswald
+BlowjobTarget_Button.Text = "Blowjob"
+BlowjobTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+BlowjobTarget_Button.TextScaled = true
+BlowjobTarget_Button.TextSize = 14.000
+BlowjobTarget_Button.TextWrapped = true
 
 StandTarget_Button.Name = "StandTarget_Button"
 StandTarget_Button.Parent = Target_Section
@@ -1373,7 +1373,7 @@ Spammer_Section.BorderSizePixel = 0
 Spammer_Section.Position = UDim2.new(0, 105, 0, 30)
 Spammer_Section.Size = UDim2.new(0, 395, 0, 320)
 Spammer_Section.Visible = false
-Spammer_Section.CanvasSize = UDim2.new(0, 0, 0.6, 0)
+Spammer_Section.CanvasSize = UDim2.new(0, 0, 0.4, 0)
 Spammer_Section.ScrollBarThickness = 5
 
 FangSpam_Button.Name = "FangSpam_Button"
@@ -1383,12 +1383,12 @@ FangSpam_Button.BackgroundTransparency = 0.500
 FangSpam_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 FangSpam_Button.BorderSizePixel = 0
 FangSpam_Button.Position = UDim2.new(0, 25, 0, 25)
-FangSpam_Button.Size = UDim2.new(0, 345, 0, 50)
+FangSpam_Button.Size = UDim2.new(0, 150, 0, 30)
 FangSpam_Button.Font = Enum.Font.Oswald
-FangSpam_Button.Text = "FANG SPAM 💢"
+FangSpam_Button.Text = "Fang Spam"
 FangSpam_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
 FangSpam_Button.TextScaled = true
-FangSpam_Button.TextSize = 20.000
+FangSpam_Button.TextSize = 14.000
 FangSpam_Button.TextWrapped = true
 
 FangCustSpam_Button.Name = "FangCustSpam_Button"
@@ -1397,13 +1397,13 @@ FangCustSpam_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 FangCustSpam_Button.BackgroundTransparency = 0.500
 FangCustSpam_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 FangCustSpam_Button.BorderSizePixel = 0
-FangCustSpam_Button.Position = UDim2.new(0, 25, 0, 100)
-FangCustSpam_Button.Size = UDim2.new(0, 345, 0, 50)
+FangCustSpam_Button.Position = UDim2.new(0, 210, 0, 25)
+FangCustSpam_Button.Size = UDim2.new(0, 150, 0, 30)
 FangCustSpam_Button.Font = Enum.Font.Oswald
-FangCustSpam_Button.Text = "FANG CUSTOME SPAM 💢"
+FangCustSpam_Button.Text = "Custom Spam"
 FangCustSpam_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
 FangCustSpam_Button.TextScaled = true
-FangCustSpam_Button.TextSize = 20.000
+FangCustSpam_Button.TextSize = 14.000
 FangCustSpam_Button.TextWrapped = true
 
 Misc_Section.Name = "Misc_Section"
@@ -1811,7 +1811,7 @@ CreateToggle(ESPTarget_Button)
 CreateToggle(CopyAnim_Button)
 CreateToggle(ChatSync_Button)
 CreateToggle(BenxTarget_Button)
-CreateToggle(HeadsitTarget_Button)
+CreateToggle(BlowjobTarget_Button)
 CreateToggle(StandTarget_Button)
 CreateToggle(BackpackTarget_Button)
 CreateToggle(DoggyTarget_Button)
@@ -1880,7 +1880,7 @@ local function UpdateTarget(player)
         CopyAnim_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         ChatSync_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         BenxTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
-        HeadsitTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
+        BlowjobTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         StandTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         BackpackTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         DoggyTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
@@ -1907,7 +1907,7 @@ local function ToggleFling(bool)
     end)
 end
 
--- Enhanced sticky attachment - no collision, full stick, server-side 0 delay, follows target even in void
+-- Enhanced sticky attachment - no collision, full stick, server-side 0 delay
 local function StickyAttach(target, offset, animId, sit)
     local con
     local vel
@@ -1922,7 +1922,6 @@ local function StickyAttach(target, offset, animId, sit)
         if GetRoot(plr):FindFirstChild("BreakVelocity") then
             GetRoot(plr).BreakVelocity:Destroy()
         end
-        -- Restore collision
         for _, part in pairs(plr.Character:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = true
@@ -1935,7 +1934,6 @@ local function StickyAttach(target, offset, animId, sit)
     if sit then
         plr.Character.Humanoid.Sit = true
     end
-    -- Disable collision for player to avoid getting stuck
     for _, part in pairs(plr.Character:GetDescendants()) do
         if part:IsA("BasePart") then
             part.CanCollide = false
@@ -2094,8 +2092,6 @@ TouchFling_Button.MouseButton1Click:Connect(function()
         if VoidProtection_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
             ToggleVoidProtection(true)
         end
-    else
-        -- no fling target button anymore
     end
 end)
 
@@ -2543,10 +2539,9 @@ ViewTarget_Button.MouseButton1Click:Connect(function()
     end
 end)
 
--- Focus Target: Camera + character always face target
-local focusConn = nil
-local focusCamConn = nil
+-- Focus Target: Character only faces target (NO camera lock)
 local focusBodyGyro = nil
+local focusConn = nil
 
 FocusTarget_Button.MouseButton1Click:Connect(function()
     if TargetedPlayer == nil then
@@ -2555,16 +2550,7 @@ FocusTarget_Button.MouseButton1Click:Connect(function()
     end
     ChangeToggleColor(FocusTarget_Button)
     if FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-        -- Camera lock
-        focusCamConn = RunService.Heartbeat:Connect(function()
-            pcall(function()
-                local t = Players[TargetedPlayer]
-                if t and t.Character and t.Character:FindFirstChild("Humanoid") then
-                    game.Workspace.CurrentCamera.CameraSubject = t.Character.Humanoid
-                end
-            end)
-        end)
-        -- Body face target
+        -- Body gyro to face target
         focusConn = RunService.Heartbeat:Connect(function()
             pcall(function()
                 local t = Players[TargetedPlayer]
@@ -2584,18 +2570,17 @@ FocusTarget_Button.MouseButton1Click:Connect(function()
                 end
             end)
         end)
-        SendNotify("Eᴀ_FᴀɴɢV1","Focus ON (Camera + Body)",3)
+        SendNotify("Eᴀ_FᴀɴɢV1","Focus ON (Body only)",3)
     else
         if focusConn then focusConn:Disconnect(); focusConn = nil end
-        if focusCamConn then focusCamConn:Disconnect(); focusCamConn = nil end
         if focusBodyGyro then focusBodyGyro:Destroy(); focusBodyGyro = nil end
-        game.Workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
         SendNotify("Eᴀ_FᴀɴɢV1","Focus OFF",3)
     end
 end)
 
--- ESP Target (Red Highlight)
+-- ESP Target with Display Name
 local espHighlight = nil
+local espBillboard = nil
 ESPTarget_Button.MouseButton1Click:Connect(function()
     if TargetedPlayer == nil then
         SendNotify("Eᴀ_FᴀɴɢV1","Select a target first!",5)
@@ -2606,15 +2591,36 @@ ESPTarget_Button.MouseButton1Click:Connect(function()
         local t = Players[TargetedPlayer]
         if t and t.Character then
             if espHighlight then espHighlight:Destroy() end
+            if espBillboard then espBillboard:Destroy() end
+            
             espHighlight = Instance.new("Highlight")
             espHighlight.Parent = t.Character
             espHighlight.FillColor = Color3.fromRGB(255, 0, 0)
             espHighlight.OutlineColor = Color3.fromRGB(255, 0, 0)
             espHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             espHighlight.Enabled = true
+            
+            espBillboard = Instance.new("BillboardGui")
+            espBillboard.Parent = t.Character.Head
+            espBillboard.Size = UDim2.new(0, 200, 0, 50)
+            espBillboard.StudsOffset = Vector3.new(0, 3, 0)
+            espBillboard.AlwaysOnTop = true
+            espBillboard.Adornee = t.Character.Head
+            
+            local label = Instance.new("TextLabel")
+            label.Parent = espBillboard
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextColor3 = Color3.fromRGB(255, 0, 0)
+            label.Font = Enum.Font.GothamBold
+            label.TextSize = 20
+            label.Text = t.DisplayName
+            label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            label.TextStrokeTransparency = 0.3
         end
     else
         if espHighlight then espHighlight:Destroy(); espHighlight = nil end
+        if espBillboard then espBillboard:Destroy(); espBillboard = nil end
     end
 end)
 
@@ -2732,20 +2738,19 @@ BenxTarget_Button.MouseButton1Click:Connect(function()
     end
 end)
 
--- Headsit - improved angle: face forward (same direction as target's head)
-local headsitStopper = nil
-HeadsitTarget_Button.MouseButton1Click:Connect(function()
+-- Blowjob (formerly Headsit) - face forward, use target head orientation
+local blowjobStopper = nil
+BlowjobTarget_Button.MouseButton1Click:Connect(function()
     if TargetedPlayer == nil then
         SendNotify("Eᴀ_FᴀɴɢV1","Select a target first!",5)
         return
     end
-    ChangeToggleColor(HeadsitTarget_Button)
-    if HeadsitTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-        if headsitStopper then headsitStopper() end
-        -- use head CFrame with offset and inherit orientation (face forward)
+    ChangeToggleColor(BlowjobTarget_Button)
+    if BlowjobTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+        if blowjobStopper then blowjobStopper() end
         local con
         local attached = true
-        local function stopHeadsit()
+        local function stopBlowjob()
             attached = false
             if con then con:Disconnect(); con = nil end
             plr.Character.Humanoid.Sit = false
@@ -2773,19 +2778,19 @@ HeadsitTarget_Button.MouseButton1Click:Connect(function()
         end
         con = RunService.Heartbeat:Connect(function()
             if not attached or not Players[TargetedPlayer] or not Players[TargetedPlayer].Character or not Players[TargetedPlayer].Character:FindFirstChild("Head") then
-                stopHeadsit()
+                stopBlowjob()
                 return
             end
             local head = Players[TargetedPlayer].Character.Head
             if head then
-                -- Place player above head and face same direction as target (inherited from head CFrame)
-                GetRoot(plr).CFrame = head.CFrame * CFrame.new(0, 2.3, 1.2)
+                -- Face forward using head orientation, position in front of face
+                GetRoot(plr).CFrame = head.CFrame * CFrame.new(0, 0.5, 2.5)
                 GetRoot(plr).Velocity = Vector3.new(0,0,0)
             end
         end)
-        headsitStopper = stopHeadsit
+        blowjobStopper = stopBlowjob
     else
-        if headsitStopper then headsitStopper(); headsitStopper = nil end
+        if blowjobStopper then blowjobStopper(); blowjobStopper = nil end
         plr.Character.Humanoid.Sit = false
         if GetRoot(plr):FindFirstChild("BreakVelocity") then
             GetRoot(plr).BreakVelocity:Destroy()
@@ -2844,7 +2849,7 @@ BackpackTarget_Button.MouseButton1Click:Connect(function()
     end
 end)
 
--- Doggy
+-- Doggy - Fixed: use LowerTorso with proper orientation
 local doggyStopper = nil
 DoggyTarget_Button.MouseButton1Click:Connect(function()
     if TargetedPlayer == nil then
@@ -2888,7 +2893,7 @@ DoggyTarget_Button.MouseButton1Click:Connect(function()
             end
             local root = Players[TargetedPlayer].Character.LowerTorso
             if root then
-                GetRoot(plr).CFrame = root.CFrame * CFrame.new(0,0.23,0)
+                GetRoot(plr).CFrame = root.CFrame * CFrame.new(0, 0.23, 0)
                 GetRoot(plr).Velocity = Vector3.new(0,0,0)
             end
         end)
@@ -3313,13 +3318,14 @@ plr.CharacterAdded:Connect(function(x)
     end
     -- Focus cleanup
     if focusConn then focusConn:Disconnect(); focusConn = nil end
-    if focusCamConn then focusCamConn:Disconnect(); focusCamConn = nil end
     if focusBodyGyro then focusBodyGyro:Destroy(); focusBodyGyro = nil end
     FocusTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
     -- ESP cleanup
-    if espHighlight then espHighlight:Destroy(); espHighlight = nil; ESPTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
+    if espHighlight then espHighlight:Destroy(); espHighlight = nil end
+    if espBillboard then espBillboard:Destroy(); espBillboard = nil end
+    ESPTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
     if benxStopper then benxStopper(); benxStopper = nil; BenxTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
-    if headsitStopper then headsitStopper(); headsitStopper = nil; HeadsitTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
+    if blowjobStopper then blowjobStopper(); blowjobStopper = nil; BlowjobTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
     if standStopper then standStopper(); standStopper = nil; StandTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
     if backpackStopper then backpackStopper(); backpackStopper = nil; BackpackTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
     if doggyStopper then doggyStopper(); doggyStopper = nil; DoggyTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
