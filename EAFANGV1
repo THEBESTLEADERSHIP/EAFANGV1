@@ -311,9 +311,9 @@ local ClickTargetTool_Button = Instance.new("ImageButton")
 local TargetName_Input = Instance.new("TextBox")
 local UserIDTargetLabel = Instance.new("TextLabel")
 local ViewTarget_Button = Instance.new("TextButton")
--- Fling removed
+local FocusTarget_Button = Instance.new("TextButton")  -- added Focus
+local ESPTarget_Button = Instance.new("TextButton")   -- added ESP
 local CopyAnim_Button = Instance.new("TextButton")
--- Focus removed
 local ChatSync_Button = Instance.new("TextButton")
 local BenxTarget_Button = Instance.new("TextButton")
 local PushTarget_Button = Instance.new("TextButton")
@@ -1101,7 +1101,7 @@ Target_Section.BorderSizePixel = 0
 Target_Section.Position = UDim2.new(0, 105, 0, 30)
 Target_Section.Size = UDim2.new(0, 395, 0, 320)
 Target_Section.Visible = false
-Target_Section.CanvasSize = UDim2.new(0, 0, 1.35, 0)
+Target_Section.CanvasSize = UDim2.new(0, 0, 1.5, 0)
 Target_Section.ScrollBarThickness = 5
 
 TargetImage.Name = "TargetImage"
@@ -1168,13 +1168,43 @@ ViewTarget_Button.TextScaled = true
 ViewTarget_Button.TextSize = 14.000
 ViewTarget_Button.TextWrapped = true
 
+FocusTarget_Button.Name = "FocusTarget_Button"
+FocusTarget_Button.Parent = Target_Section
+FocusTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+FocusTarget_Button.BackgroundTransparency = 0.500
+FocusTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FocusTarget_Button.BorderSizePixel = 0
+FocusTarget_Button.Position = UDim2.new(0, 210, 0, 150)
+FocusTarget_Button.Size = UDim2.new(0, 150, 0, 30)
+FocusTarget_Button.Font = Enum.Font.Oswald
+FocusTarget_Button.Text = "Focus"
+FocusTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FocusTarget_Button.TextScaled = true
+FocusTarget_Button.TextSize = 14.000
+FocusTarget_Button.TextWrapped = true
+
+ESPTarget_Button.Name = "ESPTarget_Button"
+ESPTarget_Button.Parent = Target_Section
+ESPTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ESPTarget_Button.BackgroundTransparency = 0.500
+ESPTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ESPTarget_Button.BorderSizePixel = 0
+ESPTarget_Button.Position = UDim2.new(0, 25, 0, 200)
+ESPTarget_Button.Size = UDim2.new(0, 150, 0, 30)
+ESPTarget_Button.Font = Enum.Font.Oswald
+ESPTarget_Button.Text = "ESP"
+ESPTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+ESPTarget_Button.TextScaled = true
+ESPTarget_Button.TextSize = 14.000
+ESPTarget_Button.TextWrapped = true
+
 CopyAnim_Button.Name = "CopyAnim_Button"
 CopyAnim_Button.Parent = Target_Section
 CopyAnim_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 CopyAnim_Button.BackgroundTransparency = 0.500
 CopyAnim_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 CopyAnim_Button.BorderSizePixel = 0
-CopyAnim_Button.Position = UDim2.new(0, 210, 0, 150)
+CopyAnim_Button.Position = UDim2.new(0, 210, 0, 200)
 CopyAnim_Button.Size = UDim2.new(0, 150, 0, 30)
 CopyAnim_Button.Font = Enum.Font.Oswald
 CopyAnim_Button.Text = "Copy Anim"
@@ -1189,7 +1219,7 @@ ChatSync_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 ChatSync_Button.BackgroundTransparency = 0.500
 ChatSync_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 ChatSync_Button.BorderSizePixel = 0
-ChatSync_Button.Position = UDim2.new(0, 210, 0, 200)
+ChatSync_Button.Position = UDim2.new(0, 25, 0, 250)
 ChatSync_Button.Size = UDim2.new(0, 150, 0, 30)
 ChatSync_Button.Font = Enum.Font.Oswald
 ChatSync_Button.Text = "Chat Sync"
@@ -1204,7 +1234,7 @@ BenxTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 BenxTarget_Button.BackgroundTransparency = 0.500
 BenxTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 BenxTarget_Button.BorderSizePixel = 0
-BenxTarget_Button.Position = UDim2.new(0, 25, 0, 200)
+BenxTarget_Button.Position = UDim2.new(0, 210, 0, 250)
 BenxTarget_Button.Size = UDim2.new(0, 150, 0, 30)
 BenxTarget_Button.Font = Enum.Font.Oswald
 BenxTarget_Button.Text = "Bang"
@@ -1264,7 +1294,7 @@ HeadsitTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 HeadsitTarget_Button.BackgroundTransparency = 0.500
 HeadsitTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 HeadsitTarget_Button.BorderSizePixel = 0
-HeadsitTarget_Button.Position = UDim2.new(0, 25, 0, 250)
+HeadsitTarget_Button.Position = UDim2.new(0, 25, 0, 300)
 HeadsitTarget_Button.Size = UDim2.new(0, 150, 0, 30)
 HeadsitTarget_Button.Font = Enum.Font.Oswald
 HeadsitTarget_Button.Text = "Headsit"
@@ -1279,7 +1309,7 @@ StandTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 StandTarget_Button.BackgroundTransparency = 0.500
 StandTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 StandTarget_Button.BorderSizePixel = 0
-StandTarget_Button.Position = UDim2.new(0, 210, 0, 250)
+StandTarget_Button.Position = UDim2.new(0, 210, 0, 300)
 StandTarget_Button.Size = UDim2.new(0, 150, 0, 30)
 StandTarget_Button.Font = Enum.Font.Oswald
 StandTarget_Button.Text = "Stand"
@@ -1294,7 +1324,7 @@ BackpackTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 BackpackTarget_Button.BackgroundTransparency = 0.500
 BackpackTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 BackpackTarget_Button.BorderSizePixel = 0
-BackpackTarget_Button.Position = UDim2.new(0, 25, 0, 300)
+BackpackTarget_Button.Position = UDim2.new(0, 25, 0, 350)
 BackpackTarget_Button.Size = UDim2.new(0, 150, 0, 30)
 BackpackTarget_Button.Font = Enum.Font.Oswald
 BackpackTarget_Button.Text = "Backpack"
@@ -1309,7 +1339,7 @@ DoggyTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 DoggyTarget_Button.BackgroundTransparency = 0.500
 DoggyTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 DoggyTarget_Button.BorderSizePixel = 0
-DoggyTarget_Button.Position = UDim2.new(0, 210, 0, 300)
+DoggyTarget_Button.Position = UDim2.new(0, 210, 0, 350)
 DoggyTarget_Button.Size = UDim2.new(0, 150, 0, 30)
 DoggyTarget_Button.Font = Enum.Font.Oswald
 DoggyTarget_Button.Text = "Doggy"
@@ -1324,7 +1354,7 @@ DragTarget_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 DragTarget_Button.BackgroundTransparency = 0.500
 DragTarget_Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
 DragTarget_Button.BorderSizePixel = 0
-DragTarget_Button.Position = UDim2.new(0, 25, 0, 350)
+DragTarget_Button.Position = UDim2.new(0, 25, 0, 450)
 DragTarget_Button.Size = UDim2.new(0, 150, 0, 30)
 DragTarget_Button.Font = Enum.Font.Oswald
 DragTarget_Button.Text = "Drag"
@@ -1776,6 +1806,8 @@ CreateClicker(Respawn_Button)
 CreateClicker(FlySpeed_Button)
 
 CreateToggle(ViewTarget_Button)
+CreateToggle(FocusTarget_Button)
+CreateToggle(ESPTarget_Button)
 CreateToggle(CopyAnim_Button)
 CreateToggle(ChatSync_Button)
 CreateToggle(BenxTarget_Button)
@@ -1843,6 +1875,8 @@ local function UpdateTarget(player)
         TargetImage.Image = "rbxassetid://10818605405"
         TargetedPlayer = nil
         ViewTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
+        FocusTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
+        ESPTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         CopyAnim_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         ChatSync_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         BenxTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
@@ -1873,7 +1907,7 @@ local function ToggleFling(bool)
     end)
 end
 
--- Sticky attachment helper - full stick, server-side 0 delay, follows target even in void
+-- Enhanced sticky attachment - no collision, full stick, server-side 0 delay, follows target even in void
 local function StickyAttach(target, offset, animId, sit)
     local con
     local vel
@@ -1881,12 +1915,18 @@ local function StickyAttach(target, offset, animId, sit)
     local attached = true
     local function stopAttach()
         attached = false
-        if con then con:Disconnect() end
-        if vel then vel:Destroy() end
-        if animTrack then animTrack:Stop() end
+        if con then con:Disconnect(); con = nil end
+        if vel then vel:Destroy(); vel = nil end
+        if animTrack then animTrack:Stop(); animTrack = nil end
         plr.Character.Humanoid.Sit = false
         if GetRoot(plr):FindFirstChild("BreakVelocity") then
             GetRoot(plr).BreakVelocity:Destroy()
+        end
+        -- Restore collision
+        for _, part in pairs(plr.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
         end
     end
     if animId then
@@ -1894,6 +1934,12 @@ local function StickyAttach(target, offset, animId, sit)
     end
     if sit then
         plr.Character.Humanoid.Sit = true
+    end
+    -- Disable collision for player to avoid getting stuck
+    for _, part in pairs(plr.Character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
     end
     if not GetRoot(plr):FindFirstChild("BreakVelocity") then
         pcall(function()
@@ -2481,17 +2527,64 @@ end)
 
 -- View Target
 ViewTarget_Button.MouseButton1Click:Connect(function()
-    if TargetedPlayer ~= nil then
-        ChangeToggleColor(ViewTarget_Button)
-        if ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-            repeat
-                pcall(function()
-                    game.Workspace.CurrentCamera.CameraSubject = Players[TargetedPlayer].Character.Humanoid
-                end)
-                task.wait(0.5)
-            until ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
-            game.Workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
+    if TargetedPlayer == nil then
+        SendNotify("Eᴀ_FᴀɴɢV1","Select a target first!",5)
+        return
+    end
+    ChangeToggleColor(ViewTarget_Button)
+    if ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+        repeat
+            pcall(function()
+                game.Workspace.CurrentCamera.CameraSubject = Players[TargetedPlayer].Character.Humanoid
+            end)
+            task.wait(0.5)
+        until ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
+        game.Workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
+    end
+end)
+
+-- Focus Target (Keep camera locked)
+FocusTarget_Button.MouseButton1Click:Connect(function()
+    if TargetedPlayer == nil then
+        SendNotify("Eᴀ_FᴀɴɢV1","Select a target first!",5)
+        return
+    end
+    ChangeToggleColor(FocusTarget_Button)
+    if FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+        repeat
+            pcall(function()
+                local t = Players[TargetedPlayer]
+                if t and t.Character and t.Character:FindFirstChild("Humanoid") then
+                    game.Workspace.CurrentCamera.CameraSubject = t.Character.Humanoid
+                end
+            end)
+            task.wait()
+        until FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
+        game.Workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
+    end
+end)
+
+-- ESP Target (Red Highlight)
+local espHighlight = nil
+ESPTarget_Button.MouseButton1Click:Connect(function()
+    if TargetedPlayer == nil then
+        SendNotify("Eᴀ_FᴀɴɢV1","Select a target first!",5)
+        return
+    end
+    ChangeToggleColor(ESPTarget_Button)
+    if ESPTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+        local t = Players[TargetedPlayer]
+        if t and t.Character then
+            if espHighlight then espHighlight:Destroy() end
+            espHighlight = Instance.new("Highlight")
+            espHighlight.Parent = t.Character
+            espHighlight.FillColor = Color3.fromRGB(255, 0, 0)
+            espHighlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+            espHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            espHighlight.Enabled = true
         end
+    else
+        if espHighlight then espHighlight:Destroy(); espHighlight = nil end
     end
 end)
 
@@ -2619,7 +2712,6 @@ HeadsitTarget_Button.MouseButton1Click:Connect(function()
     ChangeToggleColor(HeadsitTarget_Button)
     if HeadsitTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
         if headsitStopper then headsitStopper() end
-        -- offset to face side: slightly forward and up from head
         headsitStopper = StickyAttach(
             Players[TargetedPlayer],
             CFrame.new(0, 2.3, 1.2),
@@ -2696,21 +2788,35 @@ DoggyTarget_Button.MouseButton1Click:Connect(function()
     ChangeToggleColor(DoggyTarget_Button)
     if DoggyTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
         if doggyStopper then doggyStopper() end
-        doggyStopper = StickyAttach(
-            Players[TargetedPlayer],
-            CFrame.new(0,0.23,0),
-            "13694096724",
-            false
-        )
         -- Use LowerTorso for doggy
         local con
         local attached = true
         local function stopDoggy()
             attached = false
-            if con then con:Disconnect() end
+            if con then con:Disconnect(); con = nil end
+            if GetRoot(plr):FindFirstChild("BreakVelocity") then
+                GetRoot(plr).BreakVelocity:Destroy()
+            end
+            StopAnim()
+            -- restore collision
+            for _, part in pairs(plr.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
         end
-        -- override with LowerTorso attachment
-        if con then con:Disconnect() end
+        PlayAnim("13694096724",3.4,0)
+        for _, part in pairs(plr.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+        if not GetRoot(plr):FindFirstChild("BreakVelocity") then
+            pcall(function()
+                local TempV = Velocity_Asset:Clone()
+                TempV.Parent = GetRoot(plr)
+            end)
+        end
         con = RunService.Heartbeat:Connect(function()
             if not attached or not Players[TargetedPlayer] or not Players[TargetedPlayer].Character or not Players[TargetedPlayer].Character:FindFirstChild("LowerTorso") then
                 stopDoggy()
@@ -2722,7 +2828,7 @@ DoggyTarget_Button.MouseButton1Click:Connect(function()
                 GetRoot(plr).Velocity = Vector3.new(0,0,0)
             end
         end)
-        doggyStopper = function() stopDoggy(); if GetRoot(plr):FindFirstChild("BreakVelocity") then GetRoot(plr).BreakVelocity:Destroy() end; StopAnim() end
+        doggyStopper = stopDoggy
     else
         if doggyStopper then doggyStopper(); doggyStopper = nil end
         if GetRoot(plr):FindFirstChild("BreakVelocity") then
@@ -2746,9 +2852,23 @@ DragTarget_Button.MouseButton1Click:Connect(function()
         local attached = true
         local function stopDrag()
             attached = false
-            if con then con:Disconnect() end
+            if con then con:Disconnect(); con = nil end
+            if GetRoot(plr):FindFirstChild("BreakVelocity") then
+                GetRoot(plr).BreakVelocity:Destroy()
+            end
+            StopAnim()
+            for _, part in pairs(plr.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
         end
         PlayAnim("10714360343",0.5,0)
+        for _, part in pairs(plr.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
         if not GetRoot(plr):FindFirstChild("BreakVelocity") then
             pcall(function()
                 local TempV = Velocity_Asset:Clone()
@@ -2766,7 +2886,7 @@ DragTarget_Button.MouseButton1Click:Connect(function()
                 GetRoot(plr).Velocity = Vector3.new(0,0,0)
             end
         end)
-        dragStopper = function() stopDrag(); if GetRoot(plr):FindFirstChild("BreakVelocity") then GetRoot(plr).BreakVelocity:Destroy() end; StopAnim() end
+        dragStopper = stopDrag
     else
         if dragStopper then dragStopper(); dragStopper = nil end
         if GetRoot(plr):FindFirstChild("BreakVelocity") then
@@ -3138,6 +3258,13 @@ plr.CharacterAdded:Connect(function(x)
         antiVoidActive = false
         AntiVoid_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
         SendNotify("Eᴀ_FᴀɴɢV1","Anti Void was disabled due to respawn",5)
+    end
+    -- ESP cleanup
+    if espHighlight then espHighlight:Destroy(); espHighlight = nil; ESPTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0) end
+    -- Focus cleanup
+    if FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+        FocusTarget_Button.Ticket_Asset.ImageColor3 = Color3.fromRGB(255,0,0)
+        game.Workspace.CurrentCamera.CameraSubject = x.Humanoid
     end
     x.Humanoid.Died:Connect(function()
         pcall(function()
